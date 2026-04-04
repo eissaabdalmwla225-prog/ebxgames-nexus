@@ -1,9 +1,10 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
 import GameCard from "@/components/GameCard";
+import GameCardSkeleton from "@/components/GameCardSkeleton";
 import GameDetail from "@/components/GameDetail";
 import BottomNav from "@/components/BottomNav";
 import { games, type Game } from "@/data/games";
@@ -13,6 +14,7 @@ const Index = () => {
   const [category, setCategory] = useState("All");
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [activeTab, setActiveTab] = useState("home");
+  const [loading, setLoading] = useState(true);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
