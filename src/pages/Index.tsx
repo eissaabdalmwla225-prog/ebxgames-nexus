@@ -47,7 +47,7 @@ const Index = () => {
         {filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No games found.</p>
         )}
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {selectedGame && (
