@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Tag, AlertCircle, CheckCircle2 } from "lucide-react";
 import type { Game, GamePackage } from "@/data/games";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface GameDetailProps {
   game: Game;
@@ -13,6 +15,7 @@ const PROMO_CODE = "EBX50";
 const WHATSAPP_NUMBER = "201206442534";
 
 const GameDetail = ({ game, onBack }: GameDetailProps) => {
+  const { user } = useAuth();
   const [selectedPkg, setSelectedPkg] = useState<GamePackage | null>(null);
   const [playerId, setPlayerId] = useState("");
   const [promoCode, setPromoCode] = useState("");
@@ -41,7 +44,7 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
     return `EBX-${num}`;
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!playerId.trim()) {
       setPlayerIdError(true);
       toast.error("Please enter your Player ID.");
@@ -54,6 +57,25 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
 
     setPlayerIdError(false);
     const saleId = generateSaleId();
+
+    // Save order to database if logged in
+    if (user) {
+      const { error } = await supabase.from("orders").insert({
+        user_id: user.id,
+        sale_id: saleId,
+        game_id: game.id,
+        game_name: game.name,
+        package_amount: selectedPkg.amount,
+        package_currency: selectedPkg.currency,
+        original_price: selectedPkg.price,
+        final_price: finalPrice,
+        player_id: playerId,
+        promo_code: promoApplied ? promoCode.trim().toUpperCase() : null,
+      });
+      if (error) {
+        console.error("Order save error:", error);
+      }
+    }
 
     toast.success(`Order created successfully! ID: ${saleId}`);
 

@@ -1,5 +1,7 @@
 import { Home, Search, User } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface BottomNavProps {
   active: string;
@@ -13,6 +15,17 @@ const tabs = [
 ] as const;
 
 const BottomNav = ({ active, onNavigate }: BottomNavProps) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleTap = (id: string) => {
+    if (id === "profile") {
+      navigate(user ? "/profile" : "/auth");
+      return;
+    }
+    onNavigate(id);
+  };
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 glass-card backdrop-blur-2xl border-t border-glass-border px-2 pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-around h-16 max-w-md mx-auto">
@@ -21,7 +34,7 @@ const BottomNav = ({ active, onNavigate }: BottomNavProps) => {
           return (
             <button
               key={id}
-              onClick={() => onNavigate(id)}
+              onClick={() => handleTap(id)}
               className="relative flex flex-col items-center justify-center gap-1 w-16 h-full transition-colors"
             >
               {isActive && (
