@@ -103,7 +103,10 @@ const Profile = () => {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
-        {/* Avatar & Name */}
+        {profileLoading ? (
+          <ProfileSkeleton />
+        ) : (
+        <>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
