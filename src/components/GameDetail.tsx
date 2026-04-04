@@ -194,7 +194,7 @@ Please confirm and deliver to my account.`;
           </div>
           {promoApplied && (
             <p className="flex items-center gap-1 mt-2 text-xs text-green-400">
-              <CheckCircle2 className="w-3 h-3" /> 50% discount applied
+              <CheckCircle2 className="w-3 h-3" /> 50% discount applied!
             </p>
           )}
         </div>
