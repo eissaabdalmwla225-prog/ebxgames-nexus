@@ -33,6 +33,7 @@ const Profile = () => {
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [activeTab, setActiveTab] = useState<"orders" | "settings">("orders");
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
