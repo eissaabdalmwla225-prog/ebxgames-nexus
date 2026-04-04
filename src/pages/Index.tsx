@@ -24,7 +24,12 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <HeroSection />
 
-      <div className="max-w-5xl mx-auto px-4 pb-20 space-y-6">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="max-w-5xl mx-auto px-4 pb-20 space-y-6"
+      >
         <SearchBar value={search} onChange={setSearch} />
         <CategoryFilter selected={category} onSelect={setCategory} />
 
