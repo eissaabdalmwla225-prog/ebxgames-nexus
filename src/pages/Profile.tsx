@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import ProfileSkeleton from "@/components/ProfileSkeleton";
 
 interface Profile {
   display_name: string | null;
@@ -32,14 +33,15 @@ const Profile = () => {
   const [displayName, setDisplayName] = useState("");
   const [bio, setBio] = useState("");
   const [activeTab, setActiveTab] = useState<"orders" | "settings">("orders");
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       navigate("/auth");
       return;
     }
-    fetchProfile();
-    fetchOrders();
+    setProfileLoading(true);
+    Promise.all([fetchProfile(), fetchOrders()]).finally(() => setProfileLoading(false));
   }, [user]);
 
   const fetchProfile = async () => {
@@ -101,7 +103,10 @@ const Profile = () => {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
-        {/* Avatar & Name */}
+        {profileLoading ? (
+          <ProfileSkeleton />
+        ) : (
+        <>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -248,6 +253,8 @@ const Profile = () => {
               )}
             </div>
           </motion.div>
+        )}
+        </>
         )}
       </div>
     </div>

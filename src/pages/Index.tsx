@@ -1,9 +1,10 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
 import GameCard from "@/components/GameCard";
+import GameCardSkeleton from "@/components/GameCardSkeleton";
 import GameDetail from "@/components/GameDetail";
 import BottomNav from "@/components/BottomNav";
 import { games, type Game } from "@/data/games";
@@ -13,7 +14,13 @@ const Index = () => {
   const [category, setCategory] = useState("All");
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [activeTab, setActiveTab] = useState("home");
+  const [loading, setLoading] = useState(true);
   const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filtered = useMemo(() => {
     return games.filter((g) => {
@@ -49,17 +56,21 @@ const Index = () => {
         <CategoryFilter selected={category} onSelect={setCategory} />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mt-8">
-          {filtered.map((game, i) => (
-            <GameCard
-              key={game.id}
-              game={game}
-              index={i}
-              onClick={() => setSelectedGame(game)}
-            />
-          ))}
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <GameCardSkeleton key={i} index={i} />
+              ))
+            : filtered.map((game, i) => (
+                <GameCard
+                  key={game.id}
+                  game={game}
+                  index={i}
+                  onClick={() => setSelectedGame(game)}
+                />
+              ))}
         </div>
 
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No games found.</p>
         )}
       </motion.div>
