@@ -1,16 +1,19 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
 import GameCard from "@/components/GameCard";
 import GameDetail from "@/components/GameDetail";
+import BottomNav from "@/components/BottomNav";
 import { games, type Game } from "@/data/games";
 
 const Index = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [activeTab, setActiveTab] = useState("home");
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
     return games.filter((g) => {
@@ -20,8 +23,18 @@ const Index = () => {
     });
   }, [search, category]);
 
+  const handleNavigate = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === "home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else if (tab === "search") {
+      searchRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      searchRef.current?.querySelector("input")?.focus();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <HeroSection />
 
       <motion.div
@@ -30,7 +43,9 @@ const Index = () => {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="max-w-5xl mx-auto px-4 pb-20 space-y-6"
       >
-        <SearchBar value={search} onChange={setSearch} />
+        <div ref={searchRef}>
+          <SearchBar value={search} onChange={setSearch} />
+        </div>
         <CategoryFilter selected={category} onSelect={setCategory} />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mt-8">
@@ -48,6 +63,10 @@ const Index = () => {
           <p className="text-center text-muted-foreground py-12">No games found.</p>
         )}
       </motion.div>
+
+      {!selectedGame && (
+        <BottomNav active={activeTab} onNavigate={handleNavigate} />
+      )}
 
       <AnimatePresence>
         {selectedGame && (
