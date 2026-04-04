@@ -40,8 +40,8 @@ const Profile = () => {
       navigate("/auth");
       return;
     }
-    fetchProfile();
-    fetchOrders();
+    setProfileLoading(true);
+    Promise.all([fetchProfile(), fetchOrders()]).finally(() => setProfileLoading(false));
   }, [user]);
 
   const fetchProfile = async () => {
