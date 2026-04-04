@@ -254,6 +254,8 @@ const Profile = () => {
             </div>
           </motion.div>
         )}
+        </>
+        )}
       </div>
     </div>
   );
