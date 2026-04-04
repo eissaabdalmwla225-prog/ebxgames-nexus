@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import type { Game } from "@/data/games";
 
 interface GameCardProps {
@@ -8,11 +9,19 @@ interface GameCardProps {
 }
 
 const GameCard = ({ game, index, onClick }: GameCardProps) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      ref={ref}
+      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{
+        duration: 0.6,
+        delay: index * 0.08,
+        ease: [0.25, 0.46, 0.45, 0.94],
+      }}
       whileHover={{ scale: 1.03, rotateY: 3, rotateX: -2 }}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
@@ -31,7 +40,6 @@ const GameCard = ({ game, index, onClick }: GameCardProps) => {
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
-          {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
         </div>
 

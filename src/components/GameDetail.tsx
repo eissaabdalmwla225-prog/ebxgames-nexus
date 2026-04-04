@@ -74,10 +74,10 @@ Please confirm and deliver to my account.`;
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
+      initial={{ opacity: 0, y: "100%", borderRadius: "2rem" }}
+      animate={{ opacity: 1, y: 0, borderRadius: "0rem" }}
+      exit={{ opacity: 0, y: "100%", borderRadius: "2rem" }}
+      transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
       className="fixed inset-0 z-50 bg-background overflow-y-auto"
     >
       {/* Header */}

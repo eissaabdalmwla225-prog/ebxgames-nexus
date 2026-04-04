@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
 import CategoryFilter from "@/components/CategoryFilter";
@@ -24,7 +24,12 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <HeroSection />
 
-      <div className="max-w-5xl mx-auto px-4 pb-20 space-y-6">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="max-w-5xl mx-auto px-4 pb-20 space-y-6"
+      >
         <SearchBar value={search} onChange={setSearch} />
         <CategoryFilter selected={category} onSelect={setCategory} />
 
@@ -42,7 +47,7 @@ const Index = () => {
         {filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No games found.</p>
         )}
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {selectedGame && (
