@@ -1,26 +1,33 @@
-import { Home, Search, User } from "lucide-react";
+import { Home, Search, User, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
 
 interface BottomNavProps {
   active: string;
   onNavigate: (tab: string) => void;
 }
 
-const tabs = [
-  { id: "home", label: "Home", icon: Home },
-  { id: "search", label: "Search", icon: Search },
-  { id: "profile", label: "Profile", icon: User },
-] as const;
-
 const BottomNav = ({ active, onNavigate }: BottomNavProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isAdmin } = useAdmin();
+
+  const tabs = [
+    { id: "home", label: "Home", icon: Home },
+    { id: "search", label: "Search", icon: Search },
+    ...(isAdmin ? [{ id: "admin", label: "Admin", icon: Shield }] : []),
+    { id: "profile", label: "Profile", icon: User },
+  ];
 
   const handleTap = (id: string) => {
     if (id === "profile") {
       navigate(user ? "/profile" : "/auth");
+      return;
+    }
+    if (id === "admin") {
+      navigate("/admin");
       return;
     }
     onNavigate(id);
