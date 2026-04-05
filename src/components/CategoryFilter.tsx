@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
 
-const categories = ["All", "Shooter", "Sports", "Sandbox"] as const;
-
 interface CategoryFilterProps {
+  categories?: string[];
   selected: string;
   onSelect: (category: string) => void;
 }
 
-const CategoryFilter = ({ selected, onSelect }: CategoryFilterProps) => {
+const CategoryFilter = ({ categories = ["All", "Shooter", "Sports", "Sandbox"], selected, onSelect }: CategoryFilterProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
