@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
@@ -7,20 +7,20 @@ import GameCard from "@/components/GameCard";
 import GameCardSkeleton from "@/components/GameCardSkeleton";
 import GameDetail from "@/components/GameDetail";
 import BottomNav from "@/components/BottomNav";
-import { games, type Game } from "@/data/games";
+import { useGames, type Game } from "@/hooks/useGames";
 
 const Index = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [activeTab, setActiveTab] = useState("home");
-  const [loading, setLoading] = useState(true);
   const searchRef = useRef<HTMLDivElement>(null);
+  const { data: games = [], isLoading } = useGames();
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(games.map((g) => g.category)));
+    return ["All", ...cats];
+  }, [games]);
 
   const filtered = useMemo(() => {
     return games.filter((g) => {
@@ -28,7 +28,7 @@ const Index = () => {
       const matchCat = category === "All" || g.category === category;
       return matchSearch && matchCat;
     });
-  }, [search, category]);
+  }, [games, search, category]);
 
   const handleNavigate = (tab: string) => {
     setActiveTab(tab);
@@ -53,10 +53,10 @@ const Index = () => {
         <div ref={searchRef}>
           <SearchBar value={search} onChange={setSearch} />
         </div>
-        <CategoryFilter selected={category} onSelect={setCategory} />
+        <CategoryFilter categories={categories} selected={category} onSelect={setCategory} />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mt-8">
-          {loading
+          {isLoading
             ? Array.from({ length: 6 }).map((_, i) => (
                 <GameCardSkeleton key={i} index={i} />
               ))
@@ -70,7 +70,7 @@ const Index = () => {
               ))}
         </div>
 
-        {!loading && filtered.length === 0 && (
+        {!isLoading && filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No games found.</p>
         )}
       </motion.div>
