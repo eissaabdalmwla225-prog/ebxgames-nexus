@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Tag, AlertCircle, CheckCircle2 } from "lucide-react";
-import type { Game, GamePackage } from "@/data/games";
+import type { Game, GamePackage } from "@/hooks/useGames";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -58,7 +58,6 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
     setPlayerIdError(false);
     const saleId = generateSaleId();
 
-    // Save order to database if logged in
     if (user) {
       const { error } = await supabase.from("orders").insert({
         user_id: user.id,
@@ -84,7 +83,7 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
 Game: ${game.name}
 Player ID: ${playerId}
 Package: ${selectedPkg.amount} ${selectedPkg.currency}
-Price: $${finalPrice.toFixed(2)}
+Price: ${finalPrice.toLocaleString()} E£
 
 Order ID: ${saleId}
 
@@ -102,7 +101,6 @@ Please confirm and deliver to my account.`;
       transition={{ type: "spring", damping: 30, stiffness: 300, mass: 0.8 }}
       className="fixed inset-0 z-50 bg-background overflow-y-auto"
     >
-      {/* Header */}
       <div className="sticky top-0 z-50 glass-card backdrop-blur-2xl border-b border-glass-border px-4 py-3 flex items-center gap-3">
         <button onClick={onBack} className="p-2 rounded-lg hover:bg-muted transition-colors">
           <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -113,7 +111,13 @@ Please confirm and deliver to my account.`;
       <div className="max-w-2xl mx-auto px-4 pb-32">
         {/* Game Banner */}
         <div className="relative rounded-2xl overflow-hidden mt-4 aspect-video">
-          <img src={game.image} alt={game.name} className="w-full h-full object-cover" />
+          {game.image_url ? (
+            <img src={game.image_url} alt={game.name} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <span className="font-display text-5xl font-bold text-muted-foreground/20">{game.name.charAt(0)}</span>
+            </div>
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
           <div className="absolute bottom-4 left-4">
             <h1 className="font-display text-2xl sm:text-3xl font-black text-foreground">{game.name}</h1>
@@ -124,11 +128,12 @@ Please confirm and deliver to my account.`;
         <div className="mt-8">
           <h3 className="font-display text-sm uppercase tracking-wider text-muted-foreground mb-4">Select Package</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {game.packages.map((pkg, i) => {
-              const isSelected = selectedPkg === pkg;
+            {game.game_packages.map((pkg) => {
+              const isSelected = selectedPkg?.id === pkg.id;
+              const discountedPrice = pkg.price * (1 - discount);
               return (
                 <motion.button
-                  key={i}
+                  key={pkg.id}
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setSelectedPkg(pkg)}
@@ -143,18 +148,15 @@ Please confirm and deliver to my account.`;
                   </div>
                   <div className="text-xs text-muted-foreground">{pkg.currency}</div>
                   <div className="mt-2 font-bold text-primary">
-                    ${(pkg.price * (1 - discount)).toFixed(2)}
+                    {discountedPrice.toLocaleString()} E£
                     {discount > 0 && (
                       <span className="ml-1.5 text-xs text-muted-foreground line-through">
-                        ${pkg.price.toFixed(2)}
+                        {pkg.price.toLocaleString()} E£
                       </span>
                     )}
                   </div>
                   {isSelected && (
-                    <motion.div
-                      layoutId="pkg-check"
-                      className="absolute top-2 right-2"
-                    >
+                    <motion.div layoutId="pkg-check" className="absolute top-2 right-2">
                       <CheckCircle2 className="w-4 h-4 text-primary" />
                     </motion.div>
                   )}
@@ -173,10 +175,7 @@ Please confirm and deliver to my account.`;
             type="text"
             placeholder="Enter Your Player ID"
             value={playerId}
-            onChange={(e) => {
-              setPlayerId(e.target.value);
-              setPlayerIdError(false);
-            }}
+            onChange={(e) => { setPlayerId(e.target.value); setPlayerIdError(false); }}
             className={`w-full px-4 py-3 rounded-xl bg-card/60 backdrop-blur-xl border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all ${
               playerIdError ? "border-destructive" : "border-glass-border"
             }`}
@@ -200,17 +199,11 @@ Please confirm and deliver to my account.`;
                 type="text"
                 placeholder="Enter Promo Code"
                 value={promoCode}
-                onChange={(e) => {
-                  setPromoCode(e.target.value);
-                  if (promoApplied) setPromoApplied(false);
-                }}
+                onChange={(e) => { setPromoCode(e.target.value); if (promoApplied) setPromoApplied(false); }}
                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-card/60 backdrop-blur-xl border border-glass-border text-foreground placeholder:text-muted-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
               />
             </div>
-            <button
-              onClick={handleApplyPromo}
-              className="px-4 py-3 rounded-xl btn-glow text-sm font-semibold text-primary-foreground"
-            >
+            <button onClick={handleApplyPromo} className="px-4 py-3 rounded-xl btn-glow text-sm font-semibold text-primary-foreground">
               Apply
             </button>
           </div>
@@ -233,13 +226,10 @@ Please confirm and deliver to my account.`;
             <div>
               <p className="text-xs text-muted-foreground">Total</p>
               <p className="font-display text-xl font-bold text-foreground">
-                ${finalPrice.toFixed(2)}
+                {finalPrice.toLocaleString()} E£
               </p>
             </div>
-            <button
-              onClick={handleBuyNow}
-              className="btn-glow px-8 py-3 rounded-xl font-display text-sm font-bold text-primary-foreground"
-            >
+            <button onClick={handleBuyNow} className="btn-glow px-8 py-3 rounded-xl font-display text-sm font-bold text-primary-foreground">
               Buy Now
             </button>
           </div>
