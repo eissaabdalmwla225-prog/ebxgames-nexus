@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Save, X, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Save, X, Package, Upload, Image } from "lucide-react";
 import { useAllGames, type Game, type GamePackage } from "@/hooks/useGames";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 interface Props {
   editingGame: Game | null;
@@ -15,6 +16,7 @@ interface Props {
 const AdminGameEditor = ({ editingGame, setEditingGame, creatingGame, setCreatingGame }: Props) => {
   const { data: games = [], isLoading } = useAllGames();
   const queryClient = useQueryClient();
+  const { upload, uploading } = useImageUpload();
   const [form, setForm] = useState({ name: "", category: "Other", image_url: "", sort_order: 0 });
   const [packages, setPackages] = useState<{ amount: string; currency: string; price: string }[]>([]);
 
@@ -32,20 +34,21 @@ const AdminGameEditor = ({ editingGame, setEditingGame, creatingGame, setCreatin
     setPackages([{ amount: "", currency: "Coins", price: "" }]);
   };
 
-  const cancel = () => {
-    setEditingGame(null);
-    setCreatingGame(false);
-  };
-
+  const cancel = () => { setEditingGame(null); setCreatingGame(false); };
   const addPackage = () => setPackages([...packages, { amount: "", currency: "Coins", price: "" }]);
   const removePackage = (i: number) => setPackages(packages.filter((_, idx) => idx !== i));
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await upload(file, "games");
+    if (url) setForm({ ...form, image_url: url });
+  };
+
   const handleSave = async () => {
     if (!form.name.trim()) { toast.error("Game name is required"); return; }
-
     try {
       let gameId: string;
-
       if (creatingGame) {
         const { data, error } = await supabase.from("games").insert({
           name: form.name, category: form.category, image_url: form.image_url || null, sort_order: form.sort_order,
@@ -58,12 +61,9 @@ const AdminGameEditor = ({ editingGame, setEditingGame, creatingGame, setCreatin
         }).eq("id", editingGame.id);
         if (error) throw error;
         gameId = editingGame.id;
-
-        // Delete old packages
         await supabase.from("game_packages").delete().eq("game_id", gameId);
       } else return;
 
-      // Insert packages
       const pkgs = packages.filter((p) => p.amount && p.price).map((p, i) => ({
         game_id: gameId, amount: Number(p.amount), currency: p.currency, price: Number(p.price), sort_order: i,
       }));
@@ -115,8 +115,30 @@ const AdminGameEditor = ({ editingGame, setEditingGame, creatingGame, setCreatin
             className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
           <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Category"
             className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
-          <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="Image URL (optional)"
-            className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+
+          {/* Image upload */}
+          <div>
+            <label className="text-xs text-muted-foreground mb-1 block">Game Image</label>
+            {form.image_url && (
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden mb-2">
+                <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
+                <button onClick={() => setForm({ ...form, image_url: "" })}
+                  className="absolute top-2 right-2 p-1 rounded-full bg-background/80 hover:bg-background transition-colors">
+                  <X className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <label className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl glass-card cursor-pointer hover:border-primary/30 transition-all ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                <Upload className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">{uploading ? "Uploading..." : "Upload Image"}</span>
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </label>
+              <input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} placeholder="Or paste URL"
+                className="flex-1 px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+            </div>
+          </div>
+
           <input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} placeholder="Sort order"
             className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
         </div>
@@ -169,7 +191,14 @@ const AdminGameEditor = ({ editingGame, setEditingGame, creatingGame, setCreatin
       ) : (
         <div className="space-y-2">
           {games.map((game) => (
-            <div key={game.id} className={`glass-card p-4 flex items-center justify-between gap-3 ${!game.is_active ? "opacity-50" : ""}`}>
+            <div key={game.id} className={`glass-card p-4 flex items-center gap-3 ${!game.is_active ? "opacity-50" : ""}`}>
+              {game.image_url ? (
+                <img src={game.image_url} alt={game.name} className="w-12 h-12 rounded-lg object-cover" />
+              ) : (
+                <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                  <Image className="w-5 h-5 text-muted-foreground" />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="font-display text-sm font-bold text-foreground truncate">{game.name}</p>
                 <p className="text-xs text-muted-foreground">{game.category} · {game.game_packages.length} packages</p>

@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Gamepad2, Settings, Users, Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Gamepad2, Settings, Users, ShoppingCart } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
-import { useAllGames, type Game } from "@/hooks/useGames";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { type Game } from "@/hooks/useGames";
 import AdminGameEditor from "@/components/admin/AdminGameEditor";
 import AdminSettings from "@/components/admin/AdminSettings";
 import AdminAdmins from "@/components/admin/AdminAdmins";
+import AdminOrders from "@/components/admin/AdminOrders";
 
 const Admin = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
-  const [tab, setTab] = useState<"games" | "settings" | "admins">("games");
+  const [tab, setTab] = useState<"games" | "orders" | "settings" | "admins">("games");
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [creatingGame, setCreatingGame] = useState(false);
 
@@ -32,15 +30,14 @@ const Admin = () => {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-4">
         <h1 className="font-display text-2xl font-bold text-foreground">Access Denied</h1>
         <p className="text-muted-foreground text-center">You don't have admin privileges.</p>
-        <button onClick={() => navigate("/")} className="btn-glow px-6 py-2 rounded-xl font-display text-sm font-bold text-primary-foreground">
-          Go Home
-        </button>
+        <button onClick={() => navigate("/")} className="btn-glow px-6 py-2 rounded-xl font-display text-sm font-bold text-primary-foreground">Go Home</button>
       </div>
     );
   }
 
   const tabs = [
     { id: "games" as const, label: "Games", icon: Gamepad2 },
+    { id: "orders" as const, label: "Orders", icon: ShoppingCart },
     { id: "settings" as const, label: "Settings", icon: Settings },
     { id: "admins" as const, label: "Admins", icon: Users },
   ];
@@ -56,9 +53,7 @@ const Admin = () => {
 
       <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
         {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
+          <button key={t.id} onClick={() => setTab(t.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
               tab === t.id ? "btn-glow text-primary-foreground" : "glass-card text-muted-foreground hover:text-foreground"
             }`}
@@ -70,14 +65,8 @@ const Admin = () => {
       </div>
 
       <div className="px-4 pb-8">
-        {tab === "games" && (
-          <AdminGameEditor
-            editingGame={editingGame}
-            setEditingGame={setEditingGame}
-            creatingGame={creatingGame}
-            setCreatingGame={setCreatingGame}
-          />
-        )}
+        {tab === "games" && <AdminGameEditor editingGame={editingGame} setEditingGame={setEditingGame} creatingGame={creatingGame} setCreatingGame={setCreatingGame} />}
+        {tab === "orders" && <AdminOrders />}
         {tab === "settings" && <AdminSettings />}
         {tab === "admins" && <AdminAdmins />}
       </div>
