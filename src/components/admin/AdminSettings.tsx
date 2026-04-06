@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Save } from "lucide-react";
+import { Save, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 const AdminSettings = () => {
   const queryClient = useQueryClient();
+  const { upload, uploading } = useImageUpload();
   const { data: settings = {}, isLoading } = useQuery({
     queryKey: ["site-settings"],
     queryFn: async () => {
@@ -22,6 +24,13 @@ const AdminSettings = () => {
   useEffect(() => {
     if (Object.keys(settings).length > 0) setForm(settings);
   }, [settings]);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await upload(file, "branding");
+    if (url) setForm({ ...form, site_logo: url });
+  };
 
   const handleSave = async () => {
     try {
@@ -42,11 +51,34 @@ const AdminSettings = () => {
     { key: "primary_color", label: "Primary Color" },
     { key: "accent_color", label: "Accent Color" },
     { key: "currency_symbol", label: "Currency Symbol" },
+    { key: "whatsapp_number", label: "WhatsApp Number" },
+    { key: "hero_title", label: "Hero Title" },
+    { key: "hero_subtitle", label: "Hero Subtitle" },
   ];
 
   return (
     <div className="space-y-4">
       <h3 className="font-display text-lg font-bold text-foreground">Site Settings</h3>
+
+      {/* Logo upload */}
+      <div>
+        <label className="text-xs text-muted-foreground mb-2 block">Store Logo</label>
+        {form.site_logo && (
+          <div className="relative w-24 h-24 rounded-xl overflow-hidden mb-2">
+            <img src={form.site_logo} alt="Logo" className="w-full h-full object-contain bg-card/60" />
+            <button onClick={() => setForm({ ...form, site_logo: "" })}
+              className="absolute top-1 right-1 p-0.5 rounded-full bg-background/80">
+              <X className="w-3 h-3 text-foreground" />
+            </button>
+          </div>
+        )}
+        <label className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl glass-card cursor-pointer hover:border-primary/30 transition-all ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+          <Upload className="w-4 h-4 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">{uploading ? "Uploading..." : "Upload Logo"}</span>
+          <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+        </label>
+      </div>
+
       <div className="space-y-3">
         {fields.map((f) => (
           <div key={f.key}>
