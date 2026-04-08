@@ -117,6 +117,7 @@ export type Database = {
           player_id: string
           promo_code: string | null
           sale_id: string
+          screenshot_url: string | null
           status: string
           user_id: string
         }
@@ -133,6 +134,7 @@ export type Database = {
           player_id: string
           promo_code?: string | null
           sale_id: string
+          screenshot_url?: string | null
           status?: string
           user_id: string
         }
@@ -149,6 +151,7 @@ export type Database = {
           player_id?: string
           promo_code?: string | null
           sale_id?: string
+          screenshot_url?: string | null
           status?: string
           user_id?: string
         }

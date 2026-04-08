@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Tag, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Tag, AlertCircle, CheckCircle2, Upload, Image as ImageIcon } from "lucide-react";
 import type { Game, GamePackage } from "@/hooks/useGames";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,7 @@ interface GameDetailProps {
 }
 
 const PROMO_CODE = "EBX50";
-const WHATSAPP_NUMBER = "201206442534";
+const PAYMENT_NUMBER = "01206442534";
 
 const GameDetail = ({ game, onBack }: GameDetailProps) => {
   const { user } = useAuth();
@@ -22,6 +22,10 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [playerIdError, setPlayerIdError] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [confirmation, setConfirmation] = useState<{
     saleId: string; gameName: string; packageAmount: number;
     packageCurrency: string; finalPrice: number; playerId: string;
@@ -42,34 +46,62 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
 
   const generateSaleId = () => `EBX-${Math.floor(100000 + Math.random() * 900000)}`;
 
-  const handleBuyNow = async () => {
+  const handleProceedToPayment = () => {
     if (!playerId.trim()) { setPlayerIdError(true); toast.error("Please enter your Player ID."); return; }
     if (!selectedPkg) { toast.error("Please select a package."); return; }
-
+    if (!user) { toast.error("Please sign in first."); return; }
     setPlayerIdError(false);
+    setShowPayment(true);
+  };
+
+  const handleScreenshotSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB."); return; }
+    setScreenshotFile(file);
+    setScreenshotPreview(URL.createObjectURL(file));
+  };
+
+  const handleSubmitOrder = async () => {
+    if (!screenshotFile) { toast.error("Please attach a payment screenshot."); return; }
+    if (!selectedPkg || !user) return;
+
+    setSubmitting(true);
     const saleId = generateSaleId();
 
-    if (user) {
-      const { error } = await supabase.from("orders").insert({
-        user_id: user.id, sale_id: saleId, game_id: game.id,
-        game_name: game.name, package_amount: selectedPkg.amount,
-        package_currency: selectedPkg.currency, original_price: selectedPkg.price,
-        final_price: finalPrice, player_id: playerId,
-        promo_code: promoApplied ? promoCode.trim().toUpperCase() : null,
-      });
-      if (error) console.error("Order save error:", error);
-    }
+    // Upload screenshot
+    const ext = screenshotFile.name.split(".").pop();
+    const filePath = `${user.id}/${saleId}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("order-screenshots")
+      .upload(filePath, screenshotFile, { upsert: true });
 
+    if (uploadError) { toast.error("Failed to upload screenshot."); setSubmitting(false); return; }
+
+    const { data: urlData } = supabase.storage.from("order-screenshots").getPublicUrl(filePath);
+
+    const { error } = await supabase.from("orders").insert({
+      user_id: user.id, sale_id: saleId, game_id: game.id,
+      game_name: game.name, package_amount: selectedPkg.amount,
+      package_currency: selectedPkg.currency, original_price: selectedPkg.price,
+      final_price: finalPrice, player_id: playerId,
+      promo_code: promoApplied ? promoCode.trim().toUpperCase() : null,
+      screenshot_url: urlData.publicUrl,
+    });
+
+    if (error) { toast.error("Failed to submit order."); console.error(error); setSubmitting(false); return; }
+
+    setSubmitting(false);
+    setShowPayment(false);
     setConfirmation({
       saleId, gameName: game.name, packageAmount: selectedPkg.amount,
       packageCurrency: selectedPkg.currency, finalPrice, playerId,
     });
   };
 
-  const openWhatsApp = () => {
-    if (!selectedPkg || !confirmation) return;
-    const message = `Hello, I want to complete my order.\n\nGame: ${game.name}\nPlayer ID: ${playerId}\nPackage: ${selectedPkg.amount} ${selectedPkg.currency}\nPrice: ${finalPrice.toLocaleString()} E£\n\nOrder ID: ${confirmation.saleId}\n\nPlease confirm and deliver to my account.`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+  const copyNumber = () => {
+    navigator.clipboard.writeText(PAYMENT_NUMBER);
+    toast.success("Number copied!");
   };
 
   return (
@@ -155,7 +187,7 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
         </div>
       </div>
 
-      {selectedPkg && (
+      {selectedPkg && !showPayment && (
         <motion.div initial={{ y: 100 }} animate={{ y: 0 }}
           className="fixed bottom-0 left-0 right-0 z-50 p-4 glass-card backdrop-blur-2xl border-t border-glass-border"
         >
@@ -164,17 +196,99 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
               <p className="text-xs text-muted-foreground">Total</p>
               <p className="font-display text-xl font-bold text-foreground">{finalPrice.toLocaleString()} E£</p>
             </div>
-            <button onClick={handleBuyNow} className="btn-glow px-8 py-3 rounded-xl font-display text-sm font-bold text-primary-foreground">Buy Now</button>
+            <button onClick={handleProceedToPayment} className="btn-glow px-8 py-3 rounded-xl font-display text-sm font-bold text-primary-foreground">
+              Buy Now
+            </button>
           </div>
         </motion.div>
       )}
+
+      {/* Payment Sheet */}
+      <AnimatePresence>
+        {showPayment && selectedPkg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-xl flex items-end sm:items-center justify-center"
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="w-full max-w-md glass-card rounded-t-2xl sm:rounded-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto"
+            >
+              <div className="text-center">
+                <h2 className="font-display text-lg font-bold text-foreground">Complete Payment</h2>
+                <p className="text-xs text-muted-foreground mt-1">Transfer the amount and attach the screenshot</p>
+              </div>
+
+              <div className="glass-card p-4 rounded-xl space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Amount</span>
+                  <span className="text-primary font-display font-bold text-lg">{finalPrice.toLocaleString()} E£</span>
+                </div>
+                <div className="h-px bg-glass-border" />
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Transfer to this number:</p>
+                  <button onClick={copyNumber} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors">
+                    <span className="font-display text-xl font-bold text-primary tracking-wider">{PAYMENT_NUMBER}</span>
+                  </button>
+                  <p className="text-[10px] text-muted-foreground text-center mt-1">Tap to copy</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="font-display text-sm uppercase tracking-wider text-muted-foreground mb-2 block">
+                  Payment Screenshot *
+                </label>
+                {screenshotPreview ? (
+                  <div className="relative rounded-xl overflow-hidden border border-glass-border">
+                    <img src={screenshotPreview} alt="Screenshot" className="w-full max-h-48 object-contain bg-card" />
+                    <button
+                      onClick={() => { setScreenshotFile(null); setScreenshotPreview(null); }}
+                      className="absolute top-2 right-2 p-1.5 rounded-lg bg-background/80 backdrop-blur-sm hover:bg-destructive/20 transition-colors"
+                    >
+                      <AlertCircle className="w-4 h-4 text-destructive" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-2 py-8 rounded-xl border-2 border-dashed border-glass-border hover:border-primary/50 cursor-pointer transition-colors">
+                    <Upload className="w-8 h-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Tap to upload screenshot</span>
+                    <input type="file" accept="image/*" onChange={handleScreenshotSelect} className="hidden" />
+                  </label>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setShowPayment(false); setScreenshotFile(null); setScreenshotPreview(null); }}
+                  className="flex-1 py-3 rounded-xl glass-card text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitOrder}
+                  disabled={submitting || !screenshotFile}
+                  className="flex-1 py-3 rounded-xl btn-glow font-display text-sm font-bold text-primary-foreground disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {submitting ? "Submitting..." : (
+                    <><ImageIcon className="w-4 h-4" /> Submit Order</>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {confirmation && (
           <OrderConfirmation
             {...confirmation}
             onClose={() => { setConfirmation(null); onBack(); }}
-            onWhatsApp={openWhatsApp}
           />
         )}
       </AnimatePresence>

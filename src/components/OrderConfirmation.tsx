@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Copy, MessageCircle, X } from "lucide-react";
+import { CheckCircle2, Copy, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface OrderConfirmationProps {
@@ -10,11 +10,10 @@ interface OrderConfirmationProps {
   finalPrice: number;
   playerId: string;
   onClose: () => void;
-  onWhatsApp: () => void;
 }
 
 const OrderConfirmation = ({
-  saleId, gameName, packageAmount, packageCurrency, finalPrice, playerId, onClose, onWhatsApp,
+  saleId, gameName, packageAmount, packageCurrency, finalPrice, playerId, onClose,
 }: OrderConfirmationProps) => {
   const copySaleId = () => {
     navigator.clipboard.writeText(saleId);
@@ -48,8 +47,8 @@ const OrderConfirmation = ({
           >
             <CheckCircle2 className="w-8 h-8 text-green-400" />
           </motion.div>
-          <h2 className="font-display text-lg font-bold text-foreground">Order Created!</h2>
-          <p className="text-xs text-muted-foreground">Your order has been submitted. Please complete payment via WhatsApp.</p>
+          <h2 className="font-display text-lg font-bold text-foreground">Order Submitted!</h2>
+          <p className="text-xs text-muted-foreground">Your order and payment screenshot have been sent to the admin for confirmation.</p>
         </div>
 
         <div className="space-y-2 text-sm">
@@ -83,8 +82,8 @@ const OrderConfirmation = ({
           <p className="text-xs text-yellow-300">Status: <span className="font-bold">Pending</span> — awaiting admin confirmation</p>
         </div>
 
-        <button onClick={onWhatsApp} className="w-full py-3 rounded-xl bg-green-600 hover:bg-green-500 transition-colors font-display text-sm font-bold text-white flex items-center justify-center gap-2">
-          <MessageCircle className="w-4 h-4" /> Complete on WhatsApp
+        <button onClick={onClose} className="w-full py-3 rounded-xl btn-glow font-display text-sm font-bold text-primary-foreground">
+          Done
         </button>
       </motion.div>
     </motion.div>

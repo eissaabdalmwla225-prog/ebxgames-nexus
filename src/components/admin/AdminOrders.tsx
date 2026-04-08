@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Package, ChevronDown, ChevronUp, Save } from "lucide-react";
+import { Package, ChevronDown, ChevronUp, Save, Image as ImageIcon, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +16,7 @@ interface Order {
   promo_code: string | null;
   status: string;
   admin_note: string | null;
+  screenshot_url: string | null;
   created_at: string;
   user_id: string;
 }
@@ -34,6 +35,7 @@ const AdminOrders = () => {
   const [editingStatus, setEditingStatus] = useState<Record<string, string>>({});
   const [editingNote, setEditingNote] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState("all");
+  const [viewingScreenshot, setViewingScreenshot] = useState<string | null>(null);
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -58,10 +60,7 @@ const AdminOrders = () => {
       .update({ status: newStatus, admin_note: newNote || null })
       .eq("id", order.id);
 
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    if (error) { toast.error(error.message); return; }
 
     queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
     toast.success(`Order ${order.sale_id} updated`);
@@ -78,12 +77,8 @@ const AdminOrders = () => {
 
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
         {["all", ...STATUS_OPTIONS].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-              filter === s ? "btn-glow text-primary-foreground" : "glass-card text-muted-foreground"
-            }`}
+          <button key={s} onClick={() => setFilter(s)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${filter === s ? "btn-glow text-primary-foreground" : "glass-card text-muted-foreground"}`}
           >
             {s.charAt(0).toUpperCase() + s.slice(1)}
             {s !== "all" && ` (${orders.filter((o) => o.status === s).length})`}
@@ -112,6 +107,7 @@ const AdminOrders = () => {
                       <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${STATUS_COLORS[order.status] || STATUS_COLORS.pending}`}>
                         {order.status}
                       </span>
+                      {order.screenshot_url && <ImageIcon className="w-3.5 h-3.5 text-primary" />}
                     </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <span className="font-mono">{order.sale_id}</span>
@@ -132,18 +128,28 @@ const AdminOrders = () => {
                       {order.promo_code && <div><span className="text-muted-foreground">Promo:</span> <span className="text-green-400">{order.promo_code}</span></div>}
                     </div>
 
+                    {order.screenshot_url && (
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Payment Screenshot</label>
+                        <button
+                          onClick={() => setViewingScreenshot(order.screenshot_url)}
+                          className="w-full rounded-xl overflow-hidden border border-glass-border hover:border-primary/50 transition-colors relative group"
+                        >
+                          <img src={order.screenshot_url} alt="Payment proof" className="w-full max-h-40 object-contain bg-card" />
+                          <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                            <ExternalLink className="w-5 h-5 text-primary" />
+                          </div>
+                        </button>
+                      </div>
+                    )}
+
                     <div>
                       <label className="text-xs text-muted-foreground mb-1 block">Status</label>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {STATUS_OPTIONS.map((s) => (
-                          <button
-                            key={s}
+                          <button key={s}
                             onClick={() => setEditingStatus({ ...editingStatus, [order.id]: s })}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                              (editingStatus[order.id] ?? order.status) === s
-                                ? "btn-glow text-primary-foreground"
-                                : "glass-card text-muted-foreground"
-                            }`}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${(editingStatus[order.id] ?? order.status) === s ? "btn-glow text-primary-foreground" : "glass-card text-muted-foreground"}`}
                           >
                             {s}
                           </button>
@@ -173,6 +179,16 @@ const AdminOrders = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Screenshot fullscreen viewer */}
+      {viewingScreenshot && (
+        <div
+          className="fixed inset-0 z-[70] bg-background/90 backdrop-blur-xl flex items-center justify-center p-4"
+          onClick={() => setViewingScreenshot(null)}
+        >
+          <img src={viewingScreenshot} alt="Screenshot" className="max-w-full max-h-[85vh] object-contain rounded-xl" />
         </div>
       )}
     </div>
