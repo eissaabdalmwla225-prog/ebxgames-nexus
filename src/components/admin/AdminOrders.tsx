@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Package, ChevronDown, ChevronUp, Save, Image as ImageIcon, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -36,6 +36,7 @@ const AdminOrders = () => {
   const [editingNote, setEditingNote] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState("all");
   const [viewingScreenshot, setViewingScreenshot] = useState<string | null>(null);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["admin-orders"],
@@ -50,6 +51,21 @@ const AdminOrders = () => {
   });
 
   const filtered = filter === "all" ? orders : orders.filter((o) => o.status === filter);
+
+  const getSignedUrl = async (path: string): Promise<string> => {
+    if (signedUrls[path]) return signedUrls[path];
+    if (path.startsWith("http")) return path; // legacy public URL
+    const { data } = await supabase.storage.from("order-screenshots").createSignedUrl(path, 3600);
+    const url = data?.signedUrl || path;
+    setSignedUrls((prev) => ({ ...prev, [path]: url }));
+    return url;
+  };
+
+  const handleViewScreenshot = async (screenshotPath: string | null) => {
+    if (!screenshotPath) return;
+    const url = await getSignedUrl(screenshotPath);
+    setViewingScreenshot(url);
+  };
 
   const handleUpdateOrder = async (order: Order) => {
     const newStatus = editingStatus[order.id] ?? order.status;
@@ -131,15 +147,7 @@ const AdminOrders = () => {
                     {order.screenshot_url && (
                       <div>
                         <label className="text-xs text-muted-foreground mb-1 block">Payment Screenshot</label>
-                        <button
-                          onClick={() => setViewingScreenshot(order.screenshot_url)}
-                          className="w-full rounded-xl overflow-hidden border border-glass-border hover:border-primary/50 transition-colors relative group"
-                        >
-                          <img src={order.screenshot_url} alt="Payment proof" className="w-full max-h-40 object-contain bg-card" />
-                          <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <ExternalLink className="w-5 h-5 text-primary" />
-                          </div>
-                        </button>
+                        <ScreenshotPreview path={order.screenshot_url} onView={handleViewScreenshot} />
                       </div>
                     )}
 
@@ -192,6 +200,27 @@ const AdminOrders = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const ScreenshotPreview = ({ path, onView }: { path: string; onView: (p: string) => void }) => {
+  const [url, setUrl] = useState<string | null>(null);
+  
+  useEffect(() => {
+    if (path.startsWith("http")) { setUrl(path); return; }
+    supabase.storage.from("order-screenshots").createSignedUrl(path, 3600)
+      .then(({ data }) => { if (data?.signedUrl) setUrl(data.signedUrl); });
+  }, [path]);
+
+  if (!url) return <div className="w-full h-20 rounded-xl bg-card animate-pulse" />;
+
+  return (
+    <button onClick={() => onView(path)} className="w-full rounded-xl overflow-hidden border border-glass-border hover:border-primary/50 transition-colors relative group">
+      <img src={url} alt="Payment proof" className="w-full max-h-40 object-contain bg-card" />
+      <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+        <ExternalLink className="w-5 h-5 text-primary" />
+      </div>
+    </button>
   );
 };
 
