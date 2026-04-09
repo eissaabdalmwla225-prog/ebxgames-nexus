@@ -7,6 +7,7 @@ import GameCard from "@/components/GameCard";
 import GameCardSkeleton from "@/components/GameCardSkeleton";
 import GameDetail from "@/components/GameDetail";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 import { useGames, type Game } from "@/hooks/useGames";
 
 const Index = () => {
@@ -53,6 +54,9 @@ const Index = () => {
         <div ref={searchRef}>
           <SearchBar value={search} onChange={setSearch} />
         </div>
+
+        <AdBanner placement="banner" />
+
         <CategoryFilter categories={categories} selected={category} onSelect={setCategory} />
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 mt-8">
@@ -67,12 +71,16 @@ const Index = () => {
                   index={i}
                   onClick={() => setSelectedGame(game)}
                 />
-              ))}
+                ))}
         </div>
+
+        <AdBanner placement="between-games" />
 
         {!isLoading && filtered.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No games found.</p>
         )}
+
+        <AdBanner placement="footer" />
       </motion.div>
 
       {!selectedGame && (
