@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Package, ChevronDown, ChevronUp, Save, Image as ImageIcon, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -206,11 +206,11 @@ const AdminOrders = () => {
 const ScreenshotPreview = ({ path, onView }: { path: string; onView: (p: string) => void }) => {
   const [url, setUrl] = useState<string | null>(null);
   
-  useState(() => {
+  useEffect(() => {
     if (path.startsWith("http")) { setUrl(path); return; }
     supabase.storage.from("order-screenshots").createSignedUrl(path, 3600)
       .then(({ data }) => { if (data?.signedUrl) setUrl(data.signedUrl); });
-  });
+  }, [path]);
 
   if (!url) return <div className="w-full h-20 rounded-xl bg-card animate-pulse" />;
 
