@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Gamepad2, Settings, Users, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Gamepad2, Settings, Users, ShoppingCart, Megaphone } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { type Game } from "@/hooks/useGames";
@@ -8,12 +8,13 @@ import AdminGameEditor from "@/components/admin/AdminGameEditor";
 import AdminSettings from "@/components/admin/AdminSettings";
 import AdminAdmins from "@/components/admin/AdminAdmins";
 import AdminOrders from "@/components/admin/AdminOrders";
+import AdminAds from "@/components/admin/AdminAds";
 
 const Admin = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
-  const [tab, setTab] = useState<"games" | "orders" | "settings" | "admins">("games");
+  const [tab, setTab] = useState<"games" | "orders" | "ads" | "settings" | "admins">("games");
   const [editingGame, setEditingGame] = useState<Game | null>(null);
   const [creatingGame, setCreatingGame] = useState(false);
 
@@ -38,6 +39,7 @@ const Admin = () => {
   const tabs = [
     { id: "games" as const, label: "Games", icon: Gamepad2 },
     { id: "orders" as const, label: "Orders", icon: ShoppingCart },
+    { id: "ads" as const, label: "Ads", icon: Megaphone },
     { id: "settings" as const, label: "Settings", icon: Settings },
     { id: "admins" as const, label: "Admins", icon: Users },
   ];
@@ -67,6 +69,7 @@ const Admin = () => {
       <div className="px-4 pb-8">
         {tab === "games" && <AdminGameEditor editingGame={editingGame} setEditingGame={setEditingGame} creatingGame={creatingGame} setCreatingGame={setCreatingGame} />}
         {tab === "orders" && <AdminOrders />}
+        {tab === "ads" && <AdminAds />}
         {tab === "settings" && <AdminSettings />}
         {tab === "admins" && <AdminAdmins />}
       </div>
