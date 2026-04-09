@@ -203,4 +203,25 @@ const AdminOrders = () => {
   );
 };
 
+const ScreenshotPreview = ({ path, onView }: { path: string; onView: (p: string) => void }) => {
+  const [url, setUrl] = useState<string | null>(null);
+  
+  useState(() => {
+    if (path.startsWith("http")) { setUrl(path); return; }
+    supabase.storage.from("order-screenshots").createSignedUrl(path, 3600)
+      .then(({ data }) => { if (data?.signedUrl) setUrl(data.signedUrl); });
+  });
+
+  if (!url) return <div className="w-full h-20 rounded-xl bg-card animate-pulse" />;
+
+  return (
+    <button onClick={() => onView(path)} className="w-full rounded-xl overflow-hidden border border-glass-border hover:border-primary/50 transition-colors relative group">
+      <img src={url} alt="Payment proof" className="w-full max-h-40 object-contain bg-card" />
+      <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+        <ExternalLink className="w-5 h-5 text-primary" />
+      </div>
+    </button>
+  );
+};
+
 export default AdminOrders;
