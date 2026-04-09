@@ -78,7 +78,7 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
 
     if (uploadError) { toast.error("Failed to upload screenshot."); setSubmitting(false); return; }
 
-    const { data: urlData } = supabase.storage.from("order-screenshots").getPublicUrl(filePath);
+    const screenshotUrl = filePath;
 
     const { error } = await supabase.from("orders").insert({
       user_id: user.id, sale_id: saleId, game_id: game.id,
@@ -86,7 +86,7 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
       package_currency: selectedPkg.currency, original_price: selectedPkg.price,
       final_price: finalPrice, player_id: playerId,
       promo_code: promoApplied ? promoCode.trim().toUpperCase() : null,
-      screenshot_url: urlData.publicUrl,
+      screenshot_url: screenshotUrl,
     });
 
     if (error) { toast.error("Failed to submit order."); console.error(error); setSubmitting(false); return; }
