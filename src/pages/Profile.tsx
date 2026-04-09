@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, LogOut, Package, Settings, User, Pencil } from "lucide-react";
+import { ArrowLeft, LogOut, Package, Settings, User, Pencil, Shield } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ProfileSkeleton from "@/components/ProfileSkeleton";
@@ -34,6 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 const Profile = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -94,7 +96,14 @@ const Profile = () => {
                 <User className="w-8 h-8 text-primary" />
               </div>
               <div className="flex-1">
-                <h1 className="font-display text-xl font-bold text-foreground">{profile?.display_name || "Gamer"}</h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-display text-xl font-bold text-foreground">{profile?.display_name || "Gamer"}</h1>
+                  {isAdmin && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary/20 text-primary border border-primary/30">
+                      <Shield className="w-3 h-3" /> Admin
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 {profile?.bio && <p className="text-xs text-muted-foreground mt-1">{profile.bio}</p>}
               </div>
