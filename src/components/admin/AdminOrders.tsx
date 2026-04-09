@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Package, ChevronDown, ChevronUp, Save, Image as ImageIcon, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -147,15 +147,7 @@ const AdminOrders = () => {
                     {order.screenshot_url && (
                       <div>
                         <label className="text-xs text-muted-foreground mb-1 block">Payment Screenshot</label>
-                        <button
-                          onClick={() => setViewingScreenshot(order.screenshot_url)}
-                          className="w-full rounded-xl overflow-hidden border border-glass-border hover:border-primary/50 transition-colors relative group"
-                        >
-                          <img src={order.screenshot_url} alt="Payment proof" className="w-full max-h-40 object-contain bg-card" />
-                          <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                            <ExternalLink className="w-5 h-5 text-primary" />
-                          </div>
-                        </button>
+                        <ScreenshotPreview path={order.screenshot_url} onView={handleViewScreenshot} />
                       </div>
                     )}
 
