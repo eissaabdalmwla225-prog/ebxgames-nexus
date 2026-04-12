@@ -17,6 +17,9 @@ export const useAdmin = () => {
       return !error && !!data;
     },
     enabled: !!user?.email,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   return { isAdmin, isLoading };
