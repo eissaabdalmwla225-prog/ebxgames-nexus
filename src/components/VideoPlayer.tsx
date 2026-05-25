@@ -16,9 +16,7 @@ const VideoPlayer = ({ url, poster, autoPlay = true }: VideoPlayerProps) => {
         width="100%"
         height="100%"
         light={poster || false}
-        config={{
-          youtube: { playerVars: { modestbranding: 1 } },
-        }}
+        config={{ youtube: { rel: 0 } }}
       />
     </div>
   );
