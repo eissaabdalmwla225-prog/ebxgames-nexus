@@ -9,6 +9,10 @@ import Auth from "./pages/Auth.tsx";
 import ProfilePage from "./pages/Profile.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin.tsx";
+import { MoviesPage, SeriesPage } from "./pages/MediaList.tsx";
+import Live from "./pages/Live.tsx";
+import Watch from "./pages/Watch.tsx";
+import MatchWatch from "./pages/MatchWatch.tsx";
 
 const queryClient = new QueryClient();
 
@@ -21,10 +25,14 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/movies" element={<MoviesPage />} />
+            <Route path="/series" element={<SeriesPage />} />
+            <Route path="/live" element={<Live />} />
+            <Route path="/watch/:id" element={<Watch />} />
+            <Route path="/match/:id" element={<MatchWatch />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/admin" element={<Admin />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
