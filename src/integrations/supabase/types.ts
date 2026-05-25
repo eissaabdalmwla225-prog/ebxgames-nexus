@@ -77,6 +77,53 @@ export type Database = {
         }
         Relationships: []
       }
+      episodes: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: number | null
+          episode_number: number
+          id: string
+          media_id: string
+          season: number
+          thumbnail_url: string | null
+          title: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          episode_number: number
+          id?: string
+          media_id: string
+          season?: number
+          thumbnail_url?: string | null
+          title: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          episode_number?: number
+          id?: string
+          media_id?: string
+          season?: number
+          thumbnail_url?: string | null
+          title?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_packages: {
         Row: {
           amount: number
@@ -145,6 +192,146 @@ export type Database = {
           name?: string
           sort_order?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      leagues: {
+        Row: {
+          country: string | null
+          id: number
+          is_featured: boolean
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          country?: string | null
+          id: number
+          is_featured?: boolean
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          country?: string | null
+          id?: number
+          is_featured?: boolean
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      matches: {
+        Row: {
+          ai_insight: string | null
+          away_logo: string | null
+          away_score: number | null
+          away_team: string
+          home_logo: string | null
+          home_score: number | null
+          home_team: string
+          id: number
+          is_live: boolean
+          kickoff_at: string
+          league_id: number | null
+          league_name: string | null
+          status: string | null
+          stream_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_insight?: string | null
+          away_logo?: string | null
+          away_score?: number | null
+          away_team: string
+          home_logo?: string | null
+          home_score?: number | null
+          home_team: string
+          id: number
+          is_live?: boolean
+          kickoff_at: string
+          league_id?: number | null
+          league_name?: string | null
+          status?: string | null
+          stream_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_insight?: string | null
+          away_logo?: string | null
+          away_score?: number | null
+          away_team?: string
+          home_logo?: string | null
+          home_score?: number | null
+          home_team?: string
+          id?: number
+          is_live?: boolean
+          kickoff_at?: string
+          league_id?: number | null
+          league_name?: string | null
+          status?: string | null
+          stream_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_league_id_fkey"
+            columns: ["league_id"]
+            isOneToOne: false
+            referencedRelation: "leagues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media: {
+        Row: {
+          backdrop_url: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_free: boolean
+          poster_url: string | null
+          price: number
+          sort_order: number
+          title: string
+          type: string
+          updated_at: string
+          video_url: string | null
+          year: number | null
+        }
+        Insert: {
+          backdrop_url?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          poster_url?: string | null
+          price?: number
+          sort_order?: number
+          title: string
+          type: string
+          updated_at?: string
+          video_url?: string | null
+          year?: number | null
+        }
+        Update: {
+          backdrop_url?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          poster_url?: string | null
+          price?: number
+          sort_order?: number
+          title?: string
+          type?: string
+          updated_at?: string
+          video_url?: string | null
+          year?: number | null
         }
         Relationships: []
       }
@@ -231,6 +418,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          media_id: string
+          status: string
+          stripe_session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          media_id: string
+          status?: string
+          stripe_session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          media_id?: string
+          status?: string
+          stripe_session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_settings: {
         Row: {
