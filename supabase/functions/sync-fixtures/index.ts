@@ -12,6 +12,25 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // Require authenticated admin
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const authClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: userData, error: userErr } = await authClient.auth.getUser();
+    if (userErr || !userData?.user?.email) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const API_KEY = Deno.env.get("API_FOOTBALL_KEY");
     if (!API_KEY) throw new Error("API_FOOTBALL_KEY not configured");
 
@@ -19,6 +38,14 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    const { data: adminRow } = await supabase
+      .from("admin_emails").select("id").eq("email", userData.user.email).maybeSingle();
+    if (!adminRow) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const season = new Date().getFullYear();
     let totalUpserted = 0;
@@ -73,7 +100,7 @@ Deno.serve(async (req) => {
   } catch (e: any) {
     console.error("sync-fixtures error:", e);
     return new Response(
-      JSON.stringify({ error: e.message }),
+      JSON.stringify({ error: "Request failed" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   }
