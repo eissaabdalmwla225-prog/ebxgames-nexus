@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock, Play } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
 import { useMediaItem, useEpisodes, type Episode } from "@/hooks/useMedia";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Watch = () => {
@@ -12,12 +13,30 @@ const Watch = () => {
   const { data: media, isLoading } = useMediaItem(id);
   const { data: episodes = [] } = useEpisodes(media?.type === "series" ? id : undefined);
   const [activeEp, setActiveEp] = useState<Episode | null>(null);
+  const [playUrl, setPlayUrl] = useState<string | null>(null);
+
+  const targetEpisodeId = media?.type === "series" ? (activeEp?.id || episodes[0]?.id) : undefined;
+
+  useEffect(() => {
+    if (!media) return;
+    if (!media.is_free) { setPlayUrl(null); return; }
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase.rpc("get_video_url", {
+        _media_id: media.id,
+        _episode_id: targetEpisodeId ?? undefined,
+      } as any);
+      if (cancelled) return;
+      if (error) { setPlayUrl(null); return; }
+      setPlayUrl((data as string) || null);
+    })();
+    return () => { cancelled = true; };
+  }, [media?.id, media?.is_free, targetEpisodeId]);
 
   if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading…</div>;
   if (!media) return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Not found</div>;
 
   const isLocked = !media.is_free;
-  const playUrl = media.type === "series" ? (activeEp?.video_url || episodes[0]?.video_url) : media.video_url;
 
   return (
     <div className="min-h-screen bg-background pb-24">
