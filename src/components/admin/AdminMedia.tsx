@@ -142,22 +142,24 @@ const AdminMedia = () => {
 
   if (editing || creating) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-display text-lg font-bold text-foreground">
-            {creating ? "New title" : `Edit: ${editing?.title}`}
+      <div className="space-y-4 pb-24">
+        <div className="flex items-center justify-between sticky top-[100px] z-20 -mx-4 px-4 py-2 bg-background/80 backdrop-blur-xl border-b border-glass-border">
+          <h3 className="font-display text-lg text-foreground tracking-wider truncate">
+            {creating ? "NEW TITLE" : `EDIT · ${editing?.title}`}
           </h3>
-          <button onClick={cancel} className="p-2 rounded-lg hover:bg-muted"><X className="w-5 h-5 text-muted-foreground" /></button>
+          <button onClick={cancel} className="p-2 rounded-xl hover:bg-muted/60 active:bg-muted">
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => setForm({ ...form, type: "movie" })}
-            className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-sm font-bold ${form.type === "movie" ? "bg-primary text-primary-foreground border-primary" : "glass-card text-muted-foreground border-glass-border"}`}>
-            <Film className="w-4 h-4" /> Movie
+            className={`p-4 rounded-2xl border flex items-center justify-center gap-2 text-sm font-display tracking-widest transition ${form.type === "movie" ? "btn-glow border-transparent" : "glass-card text-muted-foreground border-glass-border"}`}>
+            <Film className="w-4 h-4" /> MOVIE
           </button>
           <button onClick={() => setForm({ ...form, type: "series" })}
-            className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-sm font-bold ${form.type === "series" ? "bg-primary text-primary-foreground border-primary" : "glass-card text-muted-foreground border-glass-border"}`}>
-            <Tv className="w-4 h-4" /> Series
+            className={`p-4 rounded-2xl border flex items-center justify-center gap-2 text-sm font-display tracking-widest transition ${form.type === "series" ? "btn-glow border-transparent" : "glass-card text-muted-foreground border-glass-border"}`}>
+            <Tv className="w-4 h-4" /> SERIES
           </button>
         </div>
 
@@ -175,37 +177,43 @@ const AdminMedia = () => {
           onUpload={(e) => handleImageUpload(e, "backdrop_url")} uploading={uploading} />
 
         {form.type === "movie" && (
-          <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Video (URL or upload — MP4/HLS/YouTube)</label>
-            <div className="flex gap-2">
-              <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
-                placeholder="https://..."
-                className="flex-1 px-3 py-2.5 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm" />
-              <label className={`flex items-center gap-1 px-3 py-2.5 rounded-xl glass-card cursor-pointer text-xs ${uploadingVideo ? "opacity-50 pointer-events-none" : ""}`}>
-                <Upload className="w-4 h-4" /> {uploadingVideo ? "..." : "File"}
-                <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
-              </label>
-            </div>
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground font-display tracking-widest uppercase">Video · URL or upload</label>
+            <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+              placeholder="https:// or paste m3u8 / mp4 / YouTube"
+              className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+            <label className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl glass-card cursor-pointer text-sm font-display tracking-widest ${uploadingVideo ? "opacity-50 pointer-events-none" : ""}`}>
+              <Upload className="w-4 h-4" /> {uploadingVideo ? "UPLOADING…" : "UPLOAD VIDEO FILE"}
+              <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+            </label>
           </div>
         )}
 
-        <div className="flex items-center gap-3 p-3 rounded-xl glass-card">
-          <input type="checkbox" checked={form.is_free} onChange={(e) => setForm({ ...form, is_free: e.target.checked })} className="w-4 h-4" id="free" />
+        <div className="flex items-center gap-3 p-4 rounded-2xl glass-card">
+          <input type="checkbox" checked={form.is_free} onChange={(e) => setForm({ ...form, is_free: e.target.checked })} className="w-5 h-5 accent-primary" id="free" />
           <label htmlFor="free" className="text-sm font-medium text-foreground flex-1">Free to watch</label>
           {!form.is_free && (
             <div className="flex items-center gap-1">
               <span className="text-sm text-muted-foreground">$</span>
               <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                className="w-20 px-2 py-1.5 rounded-lg bg-card/60 border border-glass-border text-foreground text-sm text-right" />
+                className="w-24 px-3 py-2 rounded-lg bg-card/60 border border-glass-border text-foreground text-sm text-right" />
             </div>
           )}
         </div>
 
         <Input label="Sort order" type="number" value={String(form.sort_order)} onChange={(v) => setForm({ ...form, sort_order: Number(v) })} />
 
-        <button onClick={handleSave} className="w-full py-3 rounded-xl btn-glow font-display text-sm font-bold text-primary-foreground flex items-center justify-center gap-2">
-          <Save className="w-4 h-4" /> Save
-        </button>
+        {/* Sticky mobile save bar */}
+        <div className="fixed bottom-16 inset-x-0 z-30 px-4 pb-3 pt-3 bg-background/90 backdrop-blur-xl border-t border-glass-border safe-bottom">
+          <div className="max-w-4xl mx-auto flex gap-2">
+            <button onClick={cancel} className="flex-1 py-3 rounded-full glass-card font-display tracking-widest text-sm text-muted-foreground">
+              CANCEL
+            </button>
+            <button onClick={handleSave} className="flex-[2] py-3 rounded-full btn-glow font-display tracking-widest text-sm flex items-center justify-center gap-2">
+              <Save className="w-4 h-4" /> SAVE
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
