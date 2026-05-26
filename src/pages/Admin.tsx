@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Film, Radio, Settings, Users, Megaphone } from "lucide-react";
+import { ArrowLeft, Film, Radio, Settings, Users, Megaphone, Shield, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import AdminMedia from "@/components/admin/AdminMedia";
@@ -9,62 +9,110 @@ import AdminSettings from "@/components/admin/AdminSettings";
 import AdminAdmins from "@/components/admin/AdminAdmins";
 import AdminAds from "@/components/admin/AdminAds";
 
+type TabId = "library" | "live" | "ads" | "settings" | "admins";
+
+const tabs: { id: TabId; label: string; icon: any; hint: string }[] = [
+  { id: "library",  label: "Library",  icon: Film,       hint: "Movies & series" },
+  { id: "live",     label: "Live",     icon: Radio,      hint: "Football streams" },
+  { id: "ads",      label: "Ads",      icon: Megaphone,  hint: "Promotions" },
+  { id: "settings", label: "Settings", icon: Settings,   hint: "Site config" },
+  { id: "admins",   label: "Admins",   icon: Users,      hint: "Access list" },
+];
+
 const Admin = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading } = useAdmin();
-  const [tab, setTab] = useState<"library" | "live" | "ads" | "settings" | "admins">("library");
+  const [tab, setTab] = useState<TabId>("library");
 
   if (authLoading || adminLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>;
-  }
-
-  if (!user || !isAdmin) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-4">
-        <h1 className="font-display text-2xl font-bold text-foreground">Access Denied</h1>
-        <p className="text-muted-foreground text-center">You don't have admin privileges.</p>
-        <button onClick={() => navigate("/")} className="btn-glow px-6 py-2 rounded-xl font-display text-sm font-bold text-primary-foreground">Go Home</button>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  const tabs = [
-    { id: "library" as const, label: "Library", icon: Film },
-    { id: "live" as const, label: "Live", icon: Radio },
-    { id: "ads" as const, label: "Ads", icon: Megaphone },
-    { id: "settings" as const, label: "Settings", icon: Settings },
-    { id: "admins" as const, label: "Admins", icon: Users },
-  ];
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <Shield className="w-12 h-12 text-primary" />
+        <h1 className="font-display text-4xl text-foreground tracking-wider">ACCESS DENIED</h1>
+        <p className="text-muted-foreground">You don't have admin privileges.</p>
+        <button onClick={() => navigate("/")} className="btn-glow px-6 py-3 rounded-full font-display text-sm tracking-widest">
+          BACK HOME
+        </button>
+      </div>
+    );
+  }
+
+  const ActiveIcon = tabs.find((t) => t.id === tab)!.icon;
+  const activeHint = tabs.find((t) => t.id === tab)!.hint;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-50 glass-card backdrop-blur-2xl border-b border-glass-border px-4 py-3 flex items-center gap-3">
-        <button onClick={() => navigate("/")} className="p-2 rounded-lg hover:bg-muted"><ArrowLeft className="w-5 h-5 text-foreground" /></button>
-        <h2 className="font-display text-sm font-bold text-foreground">EBX LV · Admin</h2>
-      </div>
-
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
-        {tabs.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-              tab === t.id ? "btn-glow text-primary-foreground" : "glass-card text-muted-foreground hover:text-foreground"
-            }`}>
-            <t.icon className="w-4 h-4" />
-            {t.label}
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-40 glass-panel border-b border-glass-border safe-top">
+        <div className="flex items-center gap-3 px-4 h-14">
+          <button onClick={() => navigate("/")} aria-label="Back"
+            className="p-2 -ml-2 rounded-xl hover:bg-muted/60 active:bg-muted">
+            <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
-        ))}
-      </div>
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className="w-8 h-8 rounded-lg btn-glow grid place-items-center shrink-0">
+              <Shield className="w-4 h-4 text-primary-foreground" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-display text-base text-foreground leading-none tracking-wider">EBX LV · CONTROL</p>
+              <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+            </div>
+          </div>
+          <button onClick={signOut} aria-label="Sign out"
+            className="p-2 rounded-xl hover:bg-muted/60 active:bg-muted">
+            <LogOut className="w-5 h-5 text-muted-foreground" />
+          </button>
+        </div>
 
-      <div className="px-4 pb-8 max-w-4xl mx-auto">
-        {tab === "library" && <AdminMedia />}
-        {tab === "live" && <AdminMatches />}
-        {tab === "ads" && <AdminAds />}
+        {/* Section title strip */}
+        <div className="flex items-center gap-2 px-4 pb-3">
+          <ActiveIcon className="w-4 h-4 text-primary" />
+          <p className="font-display text-xs tracking-[0.3em] text-primary uppercase">{tab}</p>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest">· {activeHint}</span>
+        </div>
+      </header>
+
+      {/* Content */}
+      <main className="flex-1 px-4 pt-4 pb-32 max-w-4xl w-full mx-auto">
+        {tab === "library"  && <AdminMedia />}
+        {tab === "live"     && <AdminMatches />}
+        {tab === "ads"      && <AdminAds />}
         {tab === "settings" && <AdminSettings />}
-        {tab === "admins" && <AdminAdmins />}
-      </div>
+        {tab === "admins"   && <AdminAdmins />}
+      </main>
+
+      {/* Mobile-first sticky tab bar */}
+      <nav className="fixed bottom-0 inset-x-0 z-40 glass-panel border-t border-glass-border pb-[env(safe-area-inset-bottom)]">
+        <div className="grid grid-cols-5 max-w-4xl mx-auto">
+          {tabs.map((t) => {
+            const isActive = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className="relative flex flex-col items-center justify-center gap-1 py-2.5 active:bg-muted/40 transition"
+              >
+                {isActive && (
+                  <span className="absolute -top-px left-4 right-4 h-[3px] rounded-full bg-primary shadow-[0_0_12px_hsl(var(--primary))]" />
+                )}
+                <t.icon className={`w-5 h-5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                <span className={`text-[10px] font-display tracking-[0.18em] ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                  {t.label.toUpperCase()}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 };
