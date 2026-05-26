@@ -142,22 +142,24 @@ const AdminMedia = () => {
 
   if (editing || creating) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="font-display text-lg font-bold text-foreground">
-            {creating ? "New title" : `Edit: ${editing?.title}`}
+      <div className="space-y-4 pb-24">
+        <div className="flex items-center justify-between sticky top-[100px] z-20 -mx-4 px-4 py-2 bg-background/80 backdrop-blur-xl border-b border-glass-border">
+          <h3 className="font-display text-lg text-foreground tracking-wider truncate">
+            {creating ? "NEW TITLE" : `EDIT · ${editing?.title}`}
           </h3>
-          <button onClick={cancel} className="p-2 rounded-lg hover:bg-muted"><X className="w-5 h-5 text-muted-foreground" /></button>
+          <button onClick={cancel} className="p-2 rounded-xl hover:bg-muted/60 active:bg-muted">
+            <X className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => setForm({ ...form, type: "movie" })}
-            className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-sm font-bold ${form.type === "movie" ? "bg-primary text-primary-foreground border-primary" : "glass-card text-muted-foreground border-glass-border"}`}>
-            <Film className="w-4 h-4" /> Movie
+            className={`p-4 rounded-2xl border flex items-center justify-center gap-2 text-sm font-display tracking-widest transition ${form.type === "movie" ? "btn-glow border-transparent" : "glass-card text-muted-foreground border-glass-border"}`}>
+            <Film className="w-4 h-4" /> MOVIE
           </button>
           <button onClick={() => setForm({ ...form, type: "series" })}
-            className={`p-3 rounded-xl border flex items-center justify-center gap-2 text-sm font-bold ${form.type === "series" ? "bg-primary text-primary-foreground border-primary" : "glass-card text-muted-foreground border-glass-border"}`}>
-            <Tv className="w-4 h-4" /> Series
+            className={`p-4 rounded-2xl border flex items-center justify-center gap-2 text-sm font-display tracking-widest transition ${form.type === "series" ? "btn-glow border-transparent" : "glass-card text-muted-foreground border-glass-border"}`}>
+            <Tv className="w-4 h-4" /> SERIES
           </button>
         </div>
 
@@ -175,86 +177,105 @@ const AdminMedia = () => {
           onUpload={(e) => handleImageUpload(e, "backdrop_url")} uploading={uploading} />
 
         {form.type === "movie" && (
-          <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Video (URL or upload — MP4/HLS/YouTube)</label>
-            <div className="flex gap-2">
-              <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
-                placeholder="https://..."
-                className="flex-1 px-3 py-2.5 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm" />
-              <label className={`flex items-center gap-1 px-3 py-2.5 rounded-xl glass-card cursor-pointer text-xs ${uploadingVideo ? "opacity-50 pointer-events-none" : ""}`}>
-                <Upload className="w-4 h-4" /> {uploadingVideo ? "..." : "File"}
-                <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
-              </label>
-            </div>
+          <div className="space-y-1.5">
+            <label className="text-xs text-muted-foreground font-display tracking-widest uppercase">Video · URL or upload</label>
+            <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+              placeholder="https:// or paste m3u8 / mp4 / YouTube"
+              className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+            <label className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl glass-card cursor-pointer text-sm font-display tracking-widest ${uploadingVideo ? "opacity-50 pointer-events-none" : ""}`}>
+              <Upload className="w-4 h-4" /> {uploadingVideo ? "UPLOADING…" : "UPLOAD VIDEO FILE"}
+              <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
+            </label>
           </div>
         )}
 
-        <div className="flex items-center gap-3 p-3 rounded-xl glass-card">
-          <input type="checkbox" checked={form.is_free} onChange={(e) => setForm({ ...form, is_free: e.target.checked })} className="w-4 h-4" id="free" />
+        <div className="flex items-center gap-3 p-4 rounded-2xl glass-card">
+          <input type="checkbox" checked={form.is_free} onChange={(e) => setForm({ ...form, is_free: e.target.checked })} className="w-5 h-5 accent-primary" id="free" />
           <label htmlFor="free" className="text-sm font-medium text-foreground flex-1">Free to watch</label>
           {!form.is_free && (
             <div className="flex items-center gap-1">
               <span className="text-sm text-muted-foreground">$</span>
               <input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                className="w-20 px-2 py-1.5 rounded-lg bg-card/60 border border-glass-border text-foreground text-sm text-right" />
+                className="w-24 px-3 py-2 rounded-lg bg-card/60 border border-glass-border text-foreground text-sm text-right" />
             </div>
           )}
         </div>
 
         <Input label="Sort order" type="number" value={String(form.sort_order)} onChange={(v) => setForm({ ...form, sort_order: Number(v) })} />
 
-        <button onClick={handleSave} className="w-full py-3 rounded-xl btn-glow font-display text-sm font-bold text-primary-foreground flex items-center justify-center gap-2">
-          <Save className="w-4 h-4" /> Save
-        </button>
+        {/* Sticky mobile save bar */}
+        <div className="fixed bottom-16 inset-x-0 z-30 px-4 pb-3 pt-3 bg-background/90 backdrop-blur-xl border-t border-glass-border safe-bottom">
+          <div className="max-w-4xl mx-auto flex gap-2">
+            <button onClick={cancel} className="flex-1 py-3 rounded-full glass-card font-display tracking-widest text-sm text-muted-foreground">
+              CANCEL
+            </button>
+            <button onClick={handleSave} className="flex-[2] py-3 rounded-full btn-glow font-display tracking-widest text-sm flex items-center justify-center gap-2">
+              <Save className="w-4 h-4" /> SAVE
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-lg font-bold text-foreground">Library ({media.length})</h3>
-        <button onClick={startCreate} className="flex items-center gap-2 px-4 py-2 rounded-lg btn-glow text-primary-foreground text-sm font-medium">
-          <Plus className="w-4 h-4" /> Add
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="font-display text-xl text-foreground tracking-wider">LIBRARY</h3>
+          <p className="text-[10px] text-muted-foreground font-display tracking-widest">{media.length} TITLES</p>
+        </div>
+        <button onClick={startCreate} className="flex items-center gap-2 px-5 py-3 rounded-full btn-glow font-display tracking-widest text-sm">
+          <Plus className="w-4 h-4" /> ADD
         </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center text-muted-foreground py-8">Loading…</div>
+        <div className="text-center text-muted-foreground py-8 font-display tracking-widest">LOADING…</div>
       ) : media.length === 0 ? (
-        <div className="text-center text-muted-foreground py-8 glass-card rounded-xl">No movies or series yet. Tap Add to create one.</div>
+        <div className="text-center text-muted-foreground py-12 glass-card rounded-2xl">
+          No movies or series yet. Tap <span className="text-primary font-display tracking-widest">ADD</span> to create one.
+        </div>
       ) : (
         <div className="space-y-2">
           {media.map((m) => (
-            <div key={m.id} className={`glass-card p-3 flex items-center gap-3 ${!m.is_active ? "opacity-50" : ""}`}>
+            <div key={m.id} className={`glass-card p-3 flex items-center gap-3 rounded-2xl ${!m.is_active ? "opacity-50" : ""}`}>
               {m.poster_url ? (
-                <img src={m.poster_url} alt="" className="w-12 h-16 rounded-md object-cover" />
+                <img src={m.poster_url} alt="" className="w-14 h-20 rounded-lg object-cover shrink-0" />
               ) : (
-                <div className="w-12 h-16 rounded-md bg-muted flex items-center justify-center">
+                <div className="w-14 h-20 rounded-lg bg-muted grid place-items-center shrink-0">
                   {m.type === "movie" ? <Film className="w-5 h-5 text-muted-foreground" /> : <Tv className="w-5 h-5 text-muted-foreground" />}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-display text-sm font-bold text-foreground truncate">{m.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {m.type} · {m.category} {m.is_free ? "· Free" : `· $${Number(m.price).toFixed(2)}`}
-                </p>
+                <p className="font-display text-base text-foreground truncate tracking-wide">{m.title}</p>
+                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span className="chip glass-card text-foreground text-[9px]">{m.type === "movie" ? "FILM" : "SERIES"}</span>
+                  {m.is_free
+                    ? <span className="chip bg-primary text-primary-foreground text-[9px]">FREE</span>
+                    : <span className="chip bg-foreground/90 text-background text-[9px]">${Number(m.price).toFixed(0)}</span>}
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">{m.category}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                {m.type === "series" && (
-                  <button onClick={() => setEpisodesFor(m)} className="p-2 rounded-lg hover:bg-muted" title="Episodes">
-                    <ListVideo className="w-4 h-4 text-muted-foreground" />
+              <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center">
+                  {m.type === "series" && (
+                    <button onClick={() => setEpisodesFor(m)} className="p-2 rounded-lg hover:bg-muted" title="Episodes">
+                      <ListVideo className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  )}
+                  <button onClick={() => toggleActive(m)} className="p-2 rounded-lg hover:bg-muted" title={m.is_active ? "Hide" : "Show"}>
+                    {m.is_active ? <Eye className="w-4 h-4 text-muted-foreground" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
                   </button>
-                )}
-                <button onClick={() => toggleActive(m)} className="p-2 rounded-lg hover:bg-muted">
-                  {m.is_active ? <Eye className="w-4 h-4 text-muted-foreground" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
-                </button>
-                <button onClick={() => startEdit(m)} className="p-2 rounded-lg hover:bg-muted">
-                  <Pencil className="w-4 h-4 text-muted-foreground" />
-                </button>
-                <button onClick={() => remove(m)} className="p-2 rounded-lg hover:bg-destructive/10">
-                  <Trash2 className="w-4 h-4 text-destructive" />
-                </button>
+                </div>
+                <div className="flex items-center">
+                  <button onClick={() => startEdit(m)} className="p-2 rounded-lg hover:bg-muted" title="Edit">
+                    <Pencil className="w-4 h-4 text-primary" />
+                  </button>
+                  <button onClick={() => remove(m)} className="p-2 rounded-lg hover:bg-destructive/10" title="Delete">
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

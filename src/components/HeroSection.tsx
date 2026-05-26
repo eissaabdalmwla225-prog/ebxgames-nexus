@@ -1,62 +1,88 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Film } from "lucide-react";
+import { Play, Radio, Tv, Film } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
   const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -80]);
-  const y3 = useTransform(scrollYProgress, [0, 1], [0, -200]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.8], [1, 0.92]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -140]);
+  const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
     <section
       ref={ref}
-      className="relative min-h-[50vh] flex items-center justify-center overflow-hidden px-4 pt-20 pb-8"
+      className="relative overflow-hidden px-4 pt-12 pb-10 sm:pt-20 sm:pb-16"
     >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div style={{ y: y1 }} className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-neon-purple/10 blur-[100px]" />
-        <motion.div style={{ y: y2 }} className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-neon-blue/10 blur-[120px]" />
-        <motion.div style={{ y: y3 }} className="absolute top-1/2 left-1/2 w-40 h-40 rounded-full bg-neon-cyan/5 blur-[80px]" />
+      {/* Stadium-floodlight glows */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div style={{ y: y1 }} className="absolute -top-20 left-1/4 w-72 h-72 rounded-full bg-primary/20 blur-[120px]" />
+        <motion.div style={{ y: y2 }} className="absolute top-1/3 -right-10 w-80 h-80 rounded-full bg-primary-glow/15 blur-[140px]" />
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
       </div>
 
-      <motion.div style={{ opacity, scale }} className="relative z-10 text-center max-w-3xl mx-auto">
+      {/* Pitch lines */}
+      <div className="absolute inset-0 opacity-[0.06] pointer-events-none"
+           style={{ backgroundImage: "linear-gradient(hsl(var(--primary-glow)) 1px, transparent 1px)", backgroundSize: "100% 32px" }} />
+
+      <motion.div style={{ opacity }} className="relative z-10 max-w-5xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex items-center justify-center gap-3 mb-6"
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+          className="inline-flex items-center gap-2 mb-4 px-3 py-1 rounded-full glass-card border-primary/30"
         >
-          <Film className="w-8 h-8 text-neon-purple" />
-          <span className="text-sm font-medium uppercase tracking-[0.3em] text-muted-foreground">
-            Stream Anywhere
+          <span className="w-2 h-2 rounded-full bg-primary-glow animate-pulse" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary-glow">
+            Live · Movies · Series
           </span>
         </motion.div>
 
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.15 }}
-          className="font-display text-5xl sm:text-6xl md:text-8xl font-black leading-tight mb-4"
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.05 }}
+          className="font-display text-[3.5rem] leading-[0.9] sm:text-[5.5rem] md:text-[7rem] font-normal text-balance"
         >
-          <span className="gradient-text">EBX</span>{" "}
-          <span className="text-foreground">LV</span>
+          <span className="block text-foreground">EVERY GAME.</span>
+          <span className="block gradient-text">EVERY SCREEN.</span>
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-lg sm:text-xl text-muted-foreground font-light"
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15 }}
+          className="mt-4 text-base sm:text-lg text-muted-foreground max-w-lg font-medium"
         >
-          Movies. Series. Live football — all in one place.
+          Live football from every major league, blockbuster movies and binge-worthy series — all in one stadium-grade player.
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.25 }}
+          className="mt-6 flex flex-wrap gap-3"
+        >
+          <button onClick={() => navigate("/live")}
+            className="btn-glow flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest">
+            <Radio className="w-5 h-5" /> WATCH LIVE
+          </button>
+          <button onClick={() => navigate("/movies")}
+            className="glass-card flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest text-foreground hover:border-primary/50 transition">
+            <Play className="w-5 h-5 fill-current text-primary" /> BROWSE
+          </button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-8 grid grid-cols-3 gap-3 max-w-md"
+        >
+          {[
+            { icon: Radio, k: "30+", v: "Leagues" },
+            { icon: Film,  k: "HD",  v: "Movies"  },
+            { icon: Tv,    k: "4K",  v: "Series"  },
+          ].map((s) => (
+            <div key={s.v} className="glass-card px-3 py-2.5 flex flex-col">
+              <s.icon className="w-4 h-4 text-primary mb-1" />
+              <span className="font-display text-2xl text-foreground leading-none">{s.k}</span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">{s.v}</span>
+            </div>
+          ))}
+        </motion.div>
       </motion.div>
     </section>
   );
