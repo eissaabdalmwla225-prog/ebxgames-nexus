@@ -42,10 +42,13 @@ const AdminMedia = () => {
     setForm({ ...emptyForm, sort_order: media.length });
   };
 
-  const startEdit = (m: Media) => {
+  const startEdit = async (m: Media) => {
     setEditing(m);
     setCreating(false);
     setEpisodesFor(null);
+    let vurl = "";
+    const { data } = await supabase.rpc("get_video_url", { _media_id: m.id } as any);
+    if (typeof data === "string") vurl = data;
     setForm({
       type: m.type,
       title: m.title,
@@ -54,7 +57,7 @@ const AdminMedia = () => {
       backdrop_url: m.backdrop_url || "",
       category: m.category,
       year: m.year || new Date().getFullYear(),
-      video_url: m.video_url || "",
+      video_url: vurl,
       price: Number(m.price),
       is_free: m.is_free,
       sort_order: m.sort_order,
