@@ -220,49 +220,62 @@ const AdminMedia = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-display text-lg font-bold text-foreground">Library ({media.length})</h3>
-        <button onClick={startCreate} className="flex items-center gap-2 px-4 py-2 rounded-lg btn-glow text-primary-foreground text-sm font-medium">
-          <Plus className="w-4 h-4" /> Add
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="font-display text-xl text-foreground tracking-wider">LIBRARY</h3>
+          <p className="text-[10px] text-muted-foreground font-display tracking-widest">{media.length} TITLES</p>
+        </div>
+        <button onClick={startCreate} className="flex items-center gap-2 px-5 py-3 rounded-full btn-glow font-display tracking-widest text-sm">
+          <Plus className="w-4 h-4" /> ADD
         </button>
       </div>
 
       {isLoading ? (
-        <div className="text-center text-muted-foreground py-8">Loading…</div>
+        <div className="text-center text-muted-foreground py-8 font-display tracking-widest">LOADING…</div>
       ) : media.length === 0 ? (
-        <div className="text-center text-muted-foreground py-8 glass-card rounded-xl">No movies or series yet. Tap Add to create one.</div>
+        <div className="text-center text-muted-foreground py-12 glass-card rounded-2xl">
+          No movies or series yet. Tap <span className="text-primary font-display tracking-widest">ADD</span> to create one.
+        </div>
       ) : (
         <div className="space-y-2">
           {media.map((m) => (
-            <div key={m.id} className={`glass-card p-3 flex items-center gap-3 ${!m.is_active ? "opacity-50" : ""}`}>
+            <div key={m.id} className={`glass-card p-3 flex items-center gap-3 rounded-2xl ${!m.is_active ? "opacity-50" : ""}`}>
               {m.poster_url ? (
-                <img src={m.poster_url} alt="" className="w-12 h-16 rounded-md object-cover" />
+                <img src={m.poster_url} alt="" className="w-14 h-20 rounded-lg object-cover shrink-0" />
               ) : (
-                <div className="w-12 h-16 rounded-md bg-muted flex items-center justify-center">
+                <div className="w-14 h-20 rounded-lg bg-muted grid place-items-center shrink-0">
                   {m.type === "movie" ? <Film className="w-5 h-5 text-muted-foreground" /> : <Tv className="w-5 h-5 text-muted-foreground" />}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="font-display text-sm font-bold text-foreground truncate">{m.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {m.type} · {m.category} {m.is_free ? "· Free" : `· $${Number(m.price).toFixed(2)}`}
-                </p>
+                <p className="font-display text-base text-foreground truncate tracking-wide">{m.title}</p>
+                <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span className="chip glass-card text-foreground text-[9px]">{m.type === "movie" ? "FILM" : "SERIES"}</span>
+                  {m.is_free
+                    ? <span className="chip bg-primary text-primary-foreground text-[9px]">FREE</span>
+                    : <span className="chip bg-foreground/90 text-background text-[9px]">${Number(m.price).toFixed(0)}</span>}
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">{m.category}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                {m.type === "series" && (
-                  <button onClick={() => setEpisodesFor(m)} className="p-2 rounded-lg hover:bg-muted" title="Episodes">
-                    <ListVideo className="w-4 h-4 text-muted-foreground" />
+              <div className="flex flex-col items-center gap-1">
+                <div className="flex items-center">
+                  {m.type === "series" && (
+                    <button onClick={() => setEpisodesFor(m)} className="p-2 rounded-lg hover:bg-muted" title="Episodes">
+                      <ListVideo className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  )}
+                  <button onClick={() => toggleActive(m)} className="p-2 rounded-lg hover:bg-muted" title={m.is_active ? "Hide" : "Show"}>
+                    {m.is_active ? <Eye className="w-4 h-4 text-muted-foreground" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
                   </button>
-                )}
-                <button onClick={() => toggleActive(m)} className="p-2 rounded-lg hover:bg-muted">
-                  {m.is_active ? <Eye className="w-4 h-4 text-muted-foreground" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
-                </button>
-                <button onClick={() => startEdit(m)} className="p-2 rounded-lg hover:bg-muted">
-                  <Pencil className="w-4 h-4 text-muted-foreground" />
-                </button>
-                <button onClick={() => remove(m)} className="p-2 rounded-lg hover:bg-destructive/10">
-                  <Trash2 className="w-4 h-4 text-destructive" />
-                </button>
+                </div>
+                <div className="flex items-center">
+                  <button onClick={() => startEdit(m)} className="p-2 rounded-lg hover:bg-muted" title="Edit">
+                    <Pencil className="w-4 h-4 text-primary" />
+                  </button>
+                  <button onClick={() => remove(m)} className="p-2 rounded-lg hover:bg-destructive/10" title="Delete">
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
