@@ -95,6 +95,7 @@ const Live = () => {
             ))}
           </>
         )}
+        <AdBanner placement="live-footer" />
       </div>
       <BottomNav />
     </div>
