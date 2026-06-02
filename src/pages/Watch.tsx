@@ -84,6 +84,7 @@ const Watch = () => {
             </div>
           </div>
         )}
+        <AdBanner placement="watch-footer" />
       </div>
       <BottomNav />
     </div>
