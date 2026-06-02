@@ -178,10 +178,23 @@ const AdminMedia = () => {
 
         {form.type === "movie" && (
           <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground font-display tracking-widest uppercase">Video · URL or upload</label>
-            <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
-              placeholder="https:// or paste m3u8 / mp4 / YouTube"
-              className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+            <label className="text-xs text-muted-foreground font-display tracking-widest uppercase">
+              Video source · pick one
+            </label>
+            <textarea
+              value={form.video_url}
+              onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+              rows={3}
+              placeholder={`Paste one of:
+• Direct link  → https://…/movie.mp4 or .m3u8
+• YouTube / Vimeo / Twitch URL
+• Full <iframe …></iframe> embed code from any host`}
+              className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Direct URLs use the native player. Iframe snippets are embedded as-is.
+              You can also upload a file to host it on EBX LV directly.
+            </p>
             <label className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl glass-card cursor-pointer text-sm font-display tracking-widest ${uploadingVideo ? "opacity-50 pointer-events-none" : ""}`}>
               <Upload className="w-4 h-4" /> {uploadingVideo ? "UPLOADING…" : "UPLOAD VIDEO FILE"}
               <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
