@@ -20,6 +20,7 @@ const MatchWatch = () => {
         <h2 className="font-display text-sm font-bold text-foreground truncate">{match.home_team} vs {match.away_team}</h2>
       </div>
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-4">
+        <AdBanner placement="match-top" />
         {match.stream_url ? (
           <VideoPlayer url={match.stream_url} />
         ) : (
