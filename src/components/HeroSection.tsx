@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Play, Radio, Tv, Film } from "lucide-react";
+import { Play, Tv, Film, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
@@ -34,7 +34,7 @@ const HeroSection = () => {
         >
           <span className="w-2 h-2 rounded-full bg-primary-glow animate-pulse" />
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary-glow">
-            Live · Movies · Series
+            Movies · Series · On Demand
           </span>
         </motion.div>
 
@@ -42,7 +42,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.05 }}
           className="font-display text-[3.5rem] leading-[0.9] sm:text-[5.5rem] md:text-[7rem] font-normal text-balance"
         >
-          <span className="block text-foreground">EVERY GAME.</span>
+          <span className="block text-foreground">EVERY STORY.</span>
           <span className="block gradient-text">EVERY SCREEN.</span>
         </motion.h1>
 
@@ -50,20 +50,20 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15 }}
           className="mt-4 text-base sm:text-lg text-muted-foreground max-w-lg font-medium"
         >
-          Live football from every major league, blockbuster movies and binge-worthy series — all in one stadium-grade player.
+          Blockbuster movies and binge-worthy series — all in one cinematic player.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.25 }}
           className="mt-6 flex flex-wrap gap-3"
         >
-          <button onClick={() => navigate("/live")}
-            className="btn-glow flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest">
-            <Radio className="w-5 h-5" /> WATCH LIVE
-          </button>
           <button onClick={() => navigate("/movies")}
+            className="btn-glow flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest">
+            <Play className="w-5 h-5 fill-current" /> WATCH NOW
+          </button>
+          <button onClick={() => navigate("/series")}
             className="glass-card flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest text-foreground hover:border-primary/50 transition">
-            <Play className="w-5 h-5 fill-current text-primary" /> BROWSE
+            <Tv className="w-5 h-5 text-primary" /> BROWSE
           </button>
         </motion.div>
 
@@ -72,7 +72,7 @@ const HeroSection = () => {
           className="mt-8 grid grid-cols-3 gap-3 max-w-md"
         >
           {[
-            { icon: Radio, k: "30+", v: "Leagues" },
+            { icon: Sparkles, k: "1000+", v: "Titles" },
             { icon: Film,  k: "HD",  v: "Movies"  },
             { icon: Tv,    k: "4K",  v: "Series"  },
           ].map((s) => (
