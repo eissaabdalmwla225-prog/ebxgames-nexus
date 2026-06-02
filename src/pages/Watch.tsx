@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock, Play } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 import { useMediaItem, useEpisodes, type Episode } from "@/hooks/useMedia";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
