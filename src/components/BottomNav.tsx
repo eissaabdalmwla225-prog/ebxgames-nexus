@@ -1,4 +1,4 @@
-import { Home, Film, Tv, Radio, User, Shield } from "lucide-react";
+import { Home, Film, Tv, User, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,7 +13,6 @@ const BottomNav = () => {
   const tabs = [
     { id: "home",   label: "Home",   icon: Home,  path: "/" },
     { id: "movies", label: "Movies", icon: Film,  path: "/movies" },
-    { id: "live",   label: "Live",   icon: Radio, path: "/live" },
     { id: "series", label: "Series", icon: Tv,    path: "/series" },
     ...(isAdmin ? [{ id: "admin", label: "Admin", icon: Shield, path: "/admin" }] : []),
     { id: "profile", label: "Me", icon: User, path: user ? "/profile" : "/auth" },
@@ -31,7 +30,6 @@ const BottomNav = () => {
       <div className="flex items-stretch justify-around h-16 max-w-2xl mx-auto px-1">
         {tabs.map(({ id, label, icon: Icon, path }) => {
           const isActive = active === id;
-          const isLive = id === "live";
           return (
             <button
               key={id}
@@ -46,12 +44,7 @@ const BottomNav = () => {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <div className="relative">
-                <Icon className={`w-5 h-5 transition ${isActive ? "text-primary" : "text-muted-foreground"}`} />
-                {isLive && (
-                  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-live animate-pulse ring-2 ring-background" />
-                )}
-              </div>
+              <Icon className={`w-5 h-5 transition ${isActive ? "text-primary" : "text-muted-foreground"}`} />
               <span className={`text-[10px] font-display tracking-[0.15em] transition ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                 {label.toUpperCase()}
               </span>
