@@ -70,16 +70,22 @@ const AdminMatches = () => {
                   </button>
                 </div>
                 <p className="font-display text-sm font-bold text-foreground">{m.home_team} vs {m.away_team}</p>
-                <div className="flex gap-2">
-                  <input
-                    placeholder="Stream URL (m3u8, mp4, YouTube…)"
+                <div className="space-y-1.5">
+                  <label className="text-[10px] text-muted-foreground font-display tracking-widest uppercase">
+                    Stream source
+                  </label>
+                  <textarea
+                    placeholder={"Direct URL (m3u8 / mp4 / YouTube) — or paste full <iframe …></iframe> embed"}
                     defaultValue={m.stream_url || ""}
                     onChange={(e) => setEditing({ ...editing, [m.id]: e.target.value })}
-                    className="flex-1 px-3 py-2 rounded-lg bg-card/60 border border-glass-border text-foreground text-xs"
+                    rows={2}
+                    className="w-full px-3 py-2 rounded-lg bg-card/60 border border-glass-border text-foreground text-xs font-mono resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
                   />
-                  <button onClick={() => saveStream(m)} className="px-3 py-2 rounded-lg btn-glow text-primary-foreground text-xs font-bold flex items-center gap-1">
-                    <Save className="w-3.5 h-3.5" /> Save
-                  </button>
+                  <div className="flex justify-end">
+                    <button onClick={() => saveStream(m)} className="px-3 py-2 rounded-lg btn-glow text-primary-foreground text-xs font-bold flex items-center gap-1">
+                      <Save className="w-3.5 h-3.5" /> Save stream
+                    </button>
+                  </div>
                 </div>
               </div>
             );

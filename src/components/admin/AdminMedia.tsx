@@ -178,10 +178,23 @@ const AdminMedia = () => {
 
         {form.type === "movie" && (
           <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground font-display tracking-widest uppercase">Video · URL or upload</label>
-            <input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })}
-              placeholder="https:// or paste m3u8 / mp4 / YouTube"
-              className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+            <label className="text-xs text-muted-foreground font-display tracking-widest uppercase">
+              Video source · pick one
+            </label>
+            <textarea
+              value={form.video_url}
+              onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+              rows={3}
+              placeholder={`Paste one of:
+• Direct link  → https://…/movie.mp4 or .m3u8
+• YouTube / Vimeo / Twitch URL
+• Full <iframe …></iframe> embed code from any host`}
+              className="w-full px-4 py-3 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+            <p className="text-[10px] text-muted-foreground leading-relaxed">
+              Direct URLs use the native player. Iframe snippets are embedded as-is.
+              You can also upload a file to host it on EBX LV directly.
+            </p>
             <label className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl glass-card cursor-pointer text-sm font-display tracking-widest ${uploadingVideo ? "opacity-50 pointer-events-none" : ""}`}>
               <Upload className="w-4 h-4" /> {uploadingVideo ? "UPLOADING…" : "UPLOAD VIDEO FILE"}
               <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
@@ -380,7 +393,12 @@ const AdminEpisodes = ({ media, onBack }: { media: Media; onBack: () => void }) 
             <Input label="Episode #" type="number" value={String(form.episode_number)} onChange={(v) => setForm({ ...form, episode_number: Number(v) })} />
           </div>
           <Input label="Title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
-          <Input label="Video URL" value={form.video_url} onChange={(v) => setForm({ ...form, video_url: v })} />
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground">Video source (direct URL, YouTube, or full &lt;iframe&gt; embed)</label>
+            <textarea value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} rows={3}
+              placeholder="https://…/episode.mp4  ·  YouTube link  ·  or <iframe …></iframe>"
+              className="w-full px-3 py-2.5 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
+          </div>
           <div className="flex gap-2">
             <button onClick={() => setAdding(false)} className="flex-1 py-2.5 rounded-xl glass-card text-sm">Cancel</button>
             <button onClick={save} className="flex-1 py-2.5 rounded-xl btn-glow text-primary-foreground text-sm font-bold">Save</button>

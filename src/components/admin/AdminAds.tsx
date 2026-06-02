@@ -19,10 +19,15 @@ interface Ad {
 }
 
 const PLACEMENTS = [
-  { value: "hero", label: "Hero Banner" },
-  { value: "between-games", label: "Between Games" },
-  { value: "banner", label: "Top Banner" },
-  { value: "footer", label: "Footer" },
+  { value: "banner",        label: "Home · Top Banner" },
+  { value: "hero",          label: "Home · Hero Overlay" },
+  { value: "between-rows",  label: "Home · Between Rows" },
+  { value: "footer",        label: "Home · Footer" },
+  { value: "live-top",      label: "Live Page · Top" },
+  { value: "live-footer",   label: "Live Page · Footer" },
+  { value: "watch-top",     label: "Watch Page · Above Player" },
+  { value: "watch-footer",  label: "Watch Page · Below Video" },
+  { value: "match-top",     label: "Match Page · Above Stream" },
 ];
 
 const AdminAds = () => {
