@@ -47,6 +47,7 @@ const Watch = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <AdBanner placement="watch-top" />
         {isLocked ? (
           <div className="aspect-video rounded-2xl glass-card border border-glass-border flex flex-col items-center justify-center gap-3 p-6 text-center">
             <Lock className="w-10 h-10 text-primary" />
