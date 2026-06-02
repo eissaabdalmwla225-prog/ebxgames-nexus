@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 import { useMatch } from "@/hooks/useMatches";
 
 const MatchWatch = () => {
