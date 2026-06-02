@@ -393,7 +393,12 @@ const AdminEpisodes = ({ media, onBack }: { media: Media; onBack: () => void }) 
             <Input label="Episode #" type="number" value={String(form.episode_number)} onChange={(v) => setForm({ ...form, episode_number: Number(v) })} />
           </div>
           <Input label="Title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
-          <Input label="Video URL" value={form.video_url} onChange={(v) => setForm({ ...form, video_url: v })} />
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground">Video source (direct URL, YouTube, or full &lt;iframe&gt; embed)</label>
+            <textarea value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} rows={3}
+              placeholder="https://…/episode.mp4  ·  YouTube link  ·  or <iframe …></iframe>"
+              className="w-full px-3 py-2.5 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
+          </div>
           <div className="flex gap-2">
             <button onClick={() => setAdding(false)} className="flex-1 py-2.5 rounded-xl glass-card text-sm">Cancel</button>
             <button onClick={save} className="flex-1 py-2.5 rounded-xl btn-glow text-primary-foreground text-sm font-bold">Save</button>
