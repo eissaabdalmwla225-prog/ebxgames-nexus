@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Radio } from "lucide-react";
 import MatchCard from "@/components/MatchCard";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 import { useMatches, type Match } from "@/hooks/useMatches";
 
 const Live = () => {
