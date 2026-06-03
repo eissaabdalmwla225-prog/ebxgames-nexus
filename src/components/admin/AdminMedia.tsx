@@ -32,12 +32,13 @@ const AdminMedia = () => {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [episodesFor, setEpisodesFor] = useState<Media | null>(null);
-  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [adsFor, setAdsFor] = useState<Media | null>(null);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["media"] });
     queryClient.invalidateQueries({ queryKey: ["media-all"] });
   };
+
 
   const startCreate = () => {
     setCreating(true);
