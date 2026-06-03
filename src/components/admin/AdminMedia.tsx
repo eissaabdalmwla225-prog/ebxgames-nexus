@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Save, X, Upload, Film, Tv, Image as ImageIcon, ListVideo } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Save, X, Upload, Film, Tv, ListVideo, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAllMedia, useEpisodes, type Media, type Episode } from "@/hooks/useMedia";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useVideoUpload } from "@/hooks/useVideoUpload";
+import VideoUploadField from "@/components/VideoUploadField";
+import AdminMediaAds from "@/components/admin/AdminMediaAds";
+
 
 const emptyForm = {
   type: "movie" as "movie" | "series",
