@@ -67,10 +67,11 @@ const Index = () => {
               <Row title="MOVIES" icon={Film} onSeeAll={() => navigate("/movies")}>
                 <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2 snap-x snap-mandatory">
                   {movies.map((m, i) => (
-                    <div key={m.id} className="snap-start shrink-0 w-[42vw] sm:w-44 md:w-48">
+                    <div key={m.id} className="snap-start shrink-0 w-[55vw] sm:w-56 md:w-64">
                       <MediaCard item={m} index={i} onClick={() => navigate(`/watch/${m.id}`)} />
                     </div>
                   ))}
+
                 </div>
               </Row>
             )}
@@ -81,20 +82,22 @@ const Index = () => {
               <Row title="SERIES" icon={Tv} onSeeAll={() => navigate("/series")}>
                 <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2 snap-x snap-mandatory">
                   {series.map((m, i) => (
-                    <div key={m.id} className="snap-start shrink-0 w-[42vw] sm:w-44 md:w-48">
+                    <div key={m.id} className="snap-start shrink-0 w-[55vw] sm:w-56 md:w-64">
                       <MediaCard item={m} index={i} onClick={() => navigate(`/watch/${m.id}`)} />
                     </div>
                   ))}
+
                 </div>
               </Row>
             )}
 
             <Row title="TRENDING" icon={Sparkles}>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
                 {filtered.slice(0, 12).map((m, i) => (
                   <MediaCard key={m.id} item={m} index={i} onClick={() => navigate(`/watch/${m.id}`)} />
                 ))}
               </div>
+
             </Row>
           </>
         )}
