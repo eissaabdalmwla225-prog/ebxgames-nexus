@@ -161,10 +161,10 @@ const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId }: Video
           width="100%"
           height="100%"
           light={poster || false}
-          onProgress={handleProgress}
+          onTimeUpdate={handleTimeUpdate}
           onPlay={() => setPlaying(true)}
           onPause={() => setPlaying(false)}
-          progressInterval={1000}
+
           config={{ youtube: { rel: 0 } }}
         />
       );
