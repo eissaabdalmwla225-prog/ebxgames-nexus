@@ -92,8 +92,12 @@ const Watch = () => {
             </div>
           </div>
         )}
+
+        <ReviewsSection mediaId={media.id} />
+
         <AdBanner placement="watch-footer" />
       </div>
+
       <BottomNav />
     </div>
   );
