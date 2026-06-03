@@ -4,9 +4,11 @@ import { ArrowLeft, Lock, Play } from "lucide-react";
 import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
 import AdBanner from "@/components/AdBanner";
+import ReviewsSection from "@/components/ReviewsSection";
 import { useMediaItem, useEpisodes, type Episode } from "@/hooks/useMedia";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
 
 const Watch = () => {
   const { id } = useParams();
