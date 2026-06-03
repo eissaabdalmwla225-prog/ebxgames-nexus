@@ -58,7 +58,13 @@ const Watch = () => {
             <button onClick={() => toast.info("Stripe checkout coming soon")} className="px-6 py-2.5 rounded-xl btn-glow text-primary-foreground text-sm font-bold">Buy access</button>
           </div>
         ) : playUrl ? (
-          <VideoPlayer url={playUrl} poster={media.backdrop_url || media.poster_url || undefined} />
+          <VideoPlayer
+            url={playUrl}
+            poster={media.backdrop_url || media.poster_url || undefined}
+            mediaId={media.id}
+            episodeId={targetEpisodeId ?? null}
+          />
+
         ) : (
           <div className="aspect-video rounded-2xl glass-card flex items-center justify-center text-muted-foreground">No video yet</div>
         )}
