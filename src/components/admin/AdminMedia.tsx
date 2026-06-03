@@ -78,26 +78,8 @@ const AdminMedia = () => {
     if (url) setForm({ ...form, [field]: url });
   };
 
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingVideo(true);
-    try {
-      const ext = file.name.split(".").pop();
-      const path = `videos/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("media-videos").upload(path, file, { upsert: true });
-      if (error) throw error;
-      // Use signed URL for playback
-      const { data, error: sErr } = await supabase.storage.from("media-videos").createSignedUrl(path, 60 * 60 * 24 * 365);
-      if (sErr) throw sErr;
-      setForm({ ...form, video_url: data.signedUrl });
-      toast.success("Video uploaded");
-    } catch (err: any) {
-      toast.error(err.message || "Upload failed");
-    } finally {
-      setUploadingVideo(false);
-    }
-  };
+  // (Single-file video upload is now handled by <VideoUploadField/> via useVideoUpload)
+
 
   const handleSave = async () => {
     if (!form.title.trim()) { toast.error("Title required"); return; }
