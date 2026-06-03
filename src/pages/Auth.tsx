@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import AdBanner from "@/components/AdBanner";
+
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
@@ -63,7 +65,9 @@ const Auth = () => {
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-sm space-y-8"
         >
+          <AdBanner placement="auth-top" />
           <div className="text-center">
+
             <h1 className="font-display text-3xl font-black gradient-text mb-2">
               {isLogin ? "Welcome Back" : "Join EBX"}
             </h1>
