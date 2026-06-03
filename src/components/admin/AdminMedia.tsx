@@ -261,10 +261,14 @@ const AdminMedia = () => {
                       <ListVideo className="w-4 h-4 text-muted-foreground" />
                     </button>
                   )}
+                  <button onClick={() => setAdsFor(m)} className="p-2 rounded-lg hover:bg-muted" title="In-stream ads">
+                    <Megaphone className="w-4 h-4 text-muted-foreground" />
+                  </button>
                   <button onClick={() => toggleActive(m)} className="p-2 rounded-lg hover:bg-muted" title={m.is_active ? "Hide" : "Show"}>
                     {m.is_active ? <Eye className="w-4 h-4 text-muted-foreground" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
                   </button>
                 </div>
+
                 <div className="flex items-center">
                   <button onClick={() => startEdit(m)} className="p-2 rounded-lg hover:bg-muted" title="Edit">
                     <Pencil className="w-4 h-4 text-primary" />
