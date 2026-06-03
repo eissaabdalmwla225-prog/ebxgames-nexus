@@ -1,81 +1,83 @@
-# EBX LV — Streaming Platform Rewrite
+# Plan
 
-Transform the current top-up store into **EBX LV**, a platform for movies, TV series, and live football streams, with AI-assisted fixtures and Stripe checkout.
+A large feature set across UI, admin, and database. Breaking into clear phases.
 
-## What gets removed
-- Games, game packages, orders, promo flow, screenshot upload checkout
-- Game admin tabs
-- Old hero/branding ("EBX Games")
+## 1. Media Card Redesign (`MediaCard.tsx`, `MediaList.tsx`, `Index.tsx` rows)
+- Move title **below** the poster image (no more bottom overlay).
+- Increase card size: change grids from current sm sizes to larger (e.g. `grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5` with bigger gaps); rows on home use wider `min-w` per item.
+- Title text larger, year/category as small caption underneath.
+- Keep FREE/PRICE chip on poster.
 
-## What gets built
+## 2. Faster Video Uploads + Live % Progress
+- New `useVideoUpload` hook using `supabase.storage.from('media-videos').uploadToSignedUrl` flow OR direct `upload` with `onUploadProgress` via XHR (Supabase JS doesn't expose progress, so use a manual XHR PUT to a signed upload URL — fastest + gives real progress).
+- Flow: client calls `createSignedUploadUrl(path)` → XHR PUT file with `xhr.upload.onprogress` → returns final path → store as `video_url` (signed playback URL or public path resolved through existing `get_video_url` RPC).
+- Show progress bar + percentage in `AdminMedia` and episode form.
+- Increase concurrency/no transformations for speed; recommend mp4 directly.
 
-### 1. Branding → "EBX LV"
-- Update `index.html` title, meta, OG tags
-- Update logo/hero copy, footer, public/llms.txt, README
-- New tagline ("Movies. Series. Live football. — EBX LV")
+## 3. Ratings & Reviews (DB + UI)
+- New table `reviews`: `id, media_id, user_id, rating (1-5), comment, created_at, updated_at`. Unique `(media_id, user_id)`.
+- RLS: anyone authenticated can insert/update their own; everyone can SELECT; admins can delete.
+- GRANTs for anon SELECT, authenticated CRUD on own row.
+- `useReviews(mediaId)` hook + `ReviewsSection` component on `Watch.tsx` with star picker + comment textarea + list of reviews with avatars + average rating display.
+- Show average rating + count on `MediaCard` (small star + number).
 
-### 2. New database schema (migration)
-```
-media               movies + series root (type: 'movie' | 'series')
-  - title, description, poster_url, backdrop_url, category, year
-  - video_url (movies only, nullable)
-  - price (numeric, 0 = free), is_free
-  - is_active, sort_order
-episodes            for series
-  - media_id, season, episode_number, title, video_url, duration
-leagues             cached football leagues
-matches             cached fixtures + admin-overridable stream link
-  - league_id, home_team, away_team, kickoff_at, status, stream_url
-purchases           records of paid access (replaces orders)
-  - user_id, media_id, stripe_session_id, amount, status
-```
-RLS: media/episodes/leagues/matches readable by all; admin write-only.
-Purchases: users see own, admins see all.
+## 4. Bulk Episodes for Series (admin)
+- In `AdminMedia` episode editor for a series, add **"Bulk add"** mode:
+  - Textarea where each line = `Title | video_url | duration?` OR multi-row form with "+ Add row" button.
+  - Multi-file picker that uploads all selected videos in parallel, auto-creating episodes numbered sequentially from last episode_number + 1.
+  - Per-file progress bars.
+- Single insert with array payload.
 
-### 3. Storage
-- New public bucket `media-posters` (images)
-- New private bucket `media-videos` (MP4 uploads) with signed-URL playback gated by purchase/free status
-- Drop dependence on `order-screenshots`
+## 5. In-Stream Ads with Skip Timer (the big one)
+- New table `video_ads`:
+  - `id, media_id (nullable), episode_id (nullable), ad_type ('link'|'embed'|'video'), ad_url, embed_code, video_url, click_url, start_at_seconds (int, when in playback to trigger), skip_after_seconds (int, default 5), duration_seconds (int), is_active, sort_order, created_at`.
+  - At least one of `media_id` or `episode_id` set (or both null = global pre-roll).
+- RLS: public SELECT active; admin full CRUD. GRANTs accordingly.
+- New `AdminMediaAds` panel inside the media edit screen → list/add/edit timed ads per movie/episode.
+- `VideoPlayer.tsx` enhancement:
+  - Accept `mediaId` / `episodeId` props.
+  - Fetch ads for that content, sort by `start_at_seconds`.
+  - Track playback time (ReactPlayer `onProgress`).
+  - When current time ≥ next ad's `start_at_seconds` and not yet shown, pause main video and overlay ad:
+    - `video` type → second ReactPlayer playing ad video
+    - `embed` type → `iframe srcDoc`
+    - `link` type → image/banner with click-through
+  - Overlay shows countdown: "Skip in N…" then **Skip Ad** button after `skip_after_seconds`. Auto-resume when ad ends (or skip pressed).
+- For iframe-embedded sources (where we can't control playback), render ads as full pre-roll only.
 
-### 4. Admin dashboard (rewrite tabs)
-- **Library**: list/add/edit movies & series; upload poster + video (or paste URL); set title, description, category, price, free toggle
-- **Episodes**: under a series, add seasons/episodes
-- **Live**: list AI-suggested upcoming matches, edit/attach a stream URL per match, toggle "live now"
-- **Ads** + **Admins** + **Settings**: keep
-- Remove Games, Orders tabs
+## 6. Platform-Wide Paid Ads (extend existing `ads` system)
+- Extend `PLACEMENTS` in `AdminAds`:
+  - `library-top`, `library-between`, `profile-top`, `auth-top`, `sidebar`, `floating-bottom`.
+- Add `<AdBanner placement="..." />` mounts on `MediaList.tsx`, `Profile.tsx`, `Auth.tsx` (top), and a dismissible floating banner on `Index.tsx`.
+- Add `is_paid` boolean + `priority` int (already have `sort_order`) — keep it simple, reuse `sort_order` for priority.
 
-### 5. Public site
-- `/` Home — hero, featured rows (Trending / Movies / Series / Live tonight)
-- `/movies`, `/series` — grid + filters
-- `/live` — football schedule grouped by league/day, "watch live" CTA when match is live
-- `/watch/:mediaId` (and `/watch/:mediaId/:episodeId`) — video player (HLS/MP4/YouTube embed auto-detect), paywall if priced
-- `/match/:matchId` — embedded live player
-- Bottom nav: Home, Movies, Series, Live, Profile (+ Admin if admin)
-
-### 6. Payments — Stripe (Lovable seamless)
-- Enable via `enable_stripe_payments` (no Stripe account needed)
-- One-time purchase per movie/series: "Buy access" → Stripe Checkout → webhook records purchase → user gets permanent access
-- Free items skip checkout
-
-### 7. Football AI integration
-- Secret: `API_FOOTBALL_KEY` (api-football.com / RapidAPI free tier)
-- Edge function `sync-fixtures`: pulls today + next 7 days for major leagues (PL, La Liga, Serie A, Bundesliga, Ligue 1, UCL, UEL) into `matches`
-- Edge function `ai-match-insights`: uses Lovable AI Gemini to generate short pre-match blurbs shown on match cards
-- Admin clicks "Refresh fixtures" to trigger sync; matches with `stream_url` show "Watch Live" button
-
-## Order of execution
-1. Create DB migration (new tables, drop policies on old ones we stop using — keep tables to avoid data loss; just hide from UI)
-2. Create storage buckets via migration
-3. Enable Stripe seamless payments
-4. Ask for `API_FOOTBALL_KEY` secret
-5. Edge functions: `create-checkout`, `stripe-webhook`, `sync-fixtures`, `ai-match-insights`
-6. Frontend: rebrand, new pages, new admin, video player component, bottom nav update
-7. Remove/hide game UI
+## 7. QA / Wiring
+- Update `src/integrations/supabase/types.ts` is auto-managed (don't touch).
+- Verify build, check Watch page playback, admin flows.
 
 ## Technical notes
-- Video player: `react-player` (supports YouTube, MP4, HLS)
-- Paywall check: query `purchases` for current user + media_id; if `is_free` or purchased → signed video URL; else show buy button
-- Old `games`, `game_packages`, `orders` tables left in DB but no UI references (safer than destructive drop)
-- Auth stays as-is (email/password + Google already configured)
+- All HSL semantic tokens preserved; no raw colors.
+- Use `@tanstack/react-query` for new hooks (matches repo style).
+- Use existing `sonner` toasts for upload feedback.
+- `framer-motion` for ad overlay fade.
 
-This is a large multi-step build. Approving this plan kicks off DB migration first, then Stripe enable + API key request, then code.
+## Files to change
+**Create**
+- `supabase/migrations/<new>.sql` (reviews + video_ads tables)
+- `src/hooks/useVideoUpload.ts`
+- `src/hooks/useReviews.ts`
+- `src/components/ReviewsSection.tsx`
+- `src/components/VideoUploadField.tsx` (reusable: file input + progress bar + URL fallback)
+- `src/components/admin/AdminMediaAds.tsx`
+- `src/components/admin/AdminBulkEpisodes.tsx`
+
+**Edit**
+- `src/components/MediaCard.tsx` — title below, larger
+- `src/pages/Index.tsx`, `src/pages/MediaList.tsx` — grid sizes, ad slots
+- `src/pages/Profile.tsx`, `src/pages/Auth.tsx` — ad slots
+- `src/pages/Watch.tsx` — ReviewsSection + pass ids to VideoPlayer
+- `src/components/VideoPlayer.tsx` — in-stream ads + skip
+- `src/components/admin/AdminMedia.tsx` — VideoUploadField, bulk episodes button, per-media ads tab
+- `src/components/admin/AdminAds.tsx` — new placements
+
+Confirm and I'll execute.

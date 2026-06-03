@@ -7,6 +7,8 @@ import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import ProfileSkeleton from "@/components/ProfileSkeleton";
+import AdBanner from "@/components/AdBanner";
+
 
 interface Profile {
   display_name: string | null;
@@ -89,7 +91,9 @@ const Profile = () => {
       </div>
 
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-6">
+        <AdBanner placement="profile-top" />
         {profileLoading ? <ProfileSkeleton /> : (
+
           <>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center neon-glow">

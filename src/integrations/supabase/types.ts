@@ -374,6 +374,36 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          media_id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          media_id: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          media_id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           key: string
@@ -389,6 +419,63 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      video_ads: {
+        Row: {
+          ad_type: string
+          click_url: string | null
+          created_at: string
+          duration_seconds: number
+          embed_code: string | null
+          episode_id: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          media_id: string | null
+          skip_after_seconds: number
+          sort_order: number
+          start_at_seconds: number
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          ad_type?: string
+          click_url?: string | null
+          created_at?: string
+          duration_seconds?: number
+          embed_code?: string | null
+          episode_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          media_id?: string | null
+          skip_after_seconds?: number
+          sort_order?: number
+          start_at_seconds?: number
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          ad_type?: string
+          click_url?: string | null
+          created_at?: string
+          duration_seconds?: number
+          embed_code?: string | null
+          episode_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          media_id?: string | null
+          skip_after_seconds?: number
+          sort_order?: number
+          start_at_seconds?: number
+          title?: string
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }

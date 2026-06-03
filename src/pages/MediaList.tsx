@@ -4,7 +4,9 @@ import { Film, Tv } from "lucide-react";
 import MediaCard from "@/components/MediaCard";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
+import AdBanner from "@/components/AdBanner";
 import { useMedia } from "@/hooks/useMedia";
+
 
 const MediaListPage = ({ type, title, subtitle }: { type: "movie" | "series"; title: string; subtitle: string }) => {
   const navigate = useNavigate();
@@ -50,6 +52,8 @@ const MediaListPage = ({ type, title, subtitle }: { type: "movie" | "series"; ti
 
       <div className="max-w-6xl mx-auto px-4 space-y-5">
         <SearchBar value={search} onChange={setSearch} />
+        <AdBanner placement="library-top" />
+
 
         {categories.length > 1 && (
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1">
@@ -76,11 +80,14 @@ const MediaListPage = ({ type, title, subtitle }: { type: "movie" | "series"; ti
             Nothing here yet.
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
             {filtered.map((m, i) => <MediaCard key={m.id} item={m} index={i} onClick={() => navigate(`/watch/${m.id}`)} />)}
           </div>
         )}
+
+        <AdBanner placement="library-footer" />
       </div>
+
       <BottomNav />
     </div>
   );
