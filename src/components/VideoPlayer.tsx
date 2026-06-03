@@ -119,14 +119,15 @@ const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId }: Video
     setPlaying(true);
   };
 
-  const handleProgress = (state: { playedSeconds: number }) => {
+  const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     if (activeAd) return;
-    const t = Math.floor(state.playedSeconds);
+    const t = Math.floor((e.currentTarget as HTMLVideoElement).currentTime || 0);
     const due = sortedAds.find(
       (a) => a.start_at_seconds > 0 && t >= a.start_at_seconds && !shownAdIds.has(a.id),
     );
     if (due) triggerAd(due);
   };
+
 
   const canSkip = activeAd && adElapsed >= activeAd.skip_after_seconds;
   const skipIn = activeAd ? Math.max(0, activeAd.skip_after_seconds - adElapsed) : 0;
