@@ -7,7 +7,9 @@ import SearchBar from "@/components/SearchBar";
 import MediaCard from "@/components/MediaCard";
 import BottomNav from "@/components/BottomNav";
 import AdBanner from "@/components/AdBanner";
+import FloatingAd from "@/components/FloatingAd";
 import { useMedia } from "@/hooks/useMedia";
+
 
 const Row = ({
   title, icon: Icon, onSeeAll, children,
@@ -101,6 +103,8 @@ const Index = () => {
       </motion.div>
 
       <BottomNav />
+      <FloatingAd />
+
     </div>
   );
 };

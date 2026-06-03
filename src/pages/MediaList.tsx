@@ -4,7 +4,9 @@ import { Film, Tv } from "lucide-react";
 import MediaCard from "@/components/MediaCard";
 import BottomNav from "@/components/BottomNav";
 import SearchBar from "@/components/SearchBar";
+import AdBanner from "@/components/AdBanner";
 import { useMedia } from "@/hooks/useMedia";
+
 
 const MediaListPage = ({ type, title, subtitle }: { type: "movie" | "series"; title: string; subtitle: string }) => {
   const navigate = useNavigate();
@@ -50,6 +52,8 @@ const MediaListPage = ({ type, title, subtitle }: { type: "movie" | "series"; ti
 
       <div className="max-w-6xl mx-auto px-4 space-y-5">
         <SearchBar value={search} onChange={setSearch} />
+        <AdBanner placement="library-top" />
+
 
         {categories.length > 1 && (
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-1">
