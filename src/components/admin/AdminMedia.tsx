@@ -325,12 +325,17 @@ const ImageField = ({ label, value, onChange, onUpload, uploading }: {
   </div>
 );
 
-// Episodes sub-editor
+// Episodes sub-editor — single + bulk add
 const AdminEpisodes = ({ media, onBack }: { media: Media; onBack: () => void }) => {
   const queryClient = useQueryClient();
   const { data: eps = [], isLoading } = useEpisodes(media.id);
-  const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState({ season: 1, episode_number: 1, title: "", video_url: "", description: "" });
+  const [mode, setMode] = useState<"list" | "single" | "bulk">("list");
+  const nextEp = (eps[eps.length - 1]?.episode_number ?? 0) + 1;
+  const lastSeason = eps[eps.length - 1]?.season ?? 1;
+  const [form, setForm] = useState({ season: lastSeason, episode_number: nextEp, title: "", video_url: "", description: "" });
+  const [bulkRows, setBulkRows] = useState<{ id: string; title: string; video_url: string; status?: "idle" | "uploading" | "done" | "error"; progress?: number }[]>([]);
+  const [bulkSeason, setBulkSeason] = useState(lastSeason);
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["episodes", media.id] });
 
@@ -339,7 +344,7 @@ const AdminEpisodes = ({ media, onBack }: { media: Media; onBack: () => void }) 
     const { error } = await supabase.from("episodes").insert({ media_id: media.id, ...form });
     if (error) { toast.error(error.message); return; }
     invalidate();
-    setAdding(false);
+    setMode("list");
     setForm({ season: form.season, episode_number: form.episode_number + 1, title: "", video_url: "", description: "" });
     toast.success("Episode added");
   };
@@ -351,12 +356,89 @@ const AdminEpisodes = ({ media, onBack }: { media: Media; onBack: () => void }) 
     invalidate();
   };
 
+  // Bulk: pick multiple video files, upload in parallel, auto-create episodes
+  const handleBulkFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const rows = files.map((f, i) => ({
+      id: `${Date.now()}-${i}`,
+      title: f.name.replace(/\.[^.]+$/, ""),
+      video_url: "",
+      status: "idle" as const,
+      _file: f,
+    } as any));
+    setBulkRows((prev) => [...prev, ...rows]);
+  };
+
+  const removeBulkRow = (id: string) => setBulkRows((prev) => prev.filter((r) => r.id !== id));
+
+  const addBulkUrlRow = () => {
+    setBulkRows((prev) => [...prev, { id: `${Date.now()}-${prev.length}`, title: "", video_url: "" }]);
+  };
+
+  const runBulk = async () => {
+    if (bulkRows.length === 0) { toast.error("Add files or URL rows first"); return; }
+    setBulkSaving(true);
+    try {
+      // Upload any files first (parallel)
+      const uploads = bulkRows.map(async (row: any, idx) => {
+        if (row.video_url || !row._file) return row;
+        const file: File = row._file;
+        const ext = file.name.split(".").pop() || "mp4";
+        const path = `episodes/${media.id}/${Date.now()}-${idx}.${ext}`;
+        const { data: signed, error: sErr } = await supabase.storage.from("media-videos").createSignedUploadUrl(path);
+        if (sErr || !signed) throw sErr;
+        await new Promise<void>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("PUT", signed.signedUrl, true);
+          xhr.setRequestHeader("Content-Type", file.type || "video/mp4");
+          xhr.setRequestHeader("x-upsert", "true");
+          xhr.upload.onprogress = (ev) => {
+            if (!ev.lengthComputable) return;
+            const pct = Math.round((ev.loaded / ev.total) * 100);
+            setBulkRows((prev) => prev.map((r) => r.id === row.id ? { ...r, status: "uploading", progress: pct } : r));
+          };
+          xhr.onload = () => xhr.status < 300 ? resolve() : reject(new Error(`Upload ${xhr.status}`));
+          xhr.onerror = () => reject(new Error("Network error"));
+          xhr.send(file);
+        });
+        const { data: pl } = await supabase.storage.from("media-videos").createSignedUrl(path, 60 * 60 * 24 * 365);
+        const url = pl?.signedUrl || "";
+        setBulkRows((prev) => prev.map((r) => r.id === row.id ? { ...r, video_url: url, status: "done", progress: 100 } : r));
+        return { ...row, video_url: url };
+      });
+      const ready = await Promise.all(uploads);
+
+      // Insert all episodes in one call
+      const startNum = nextEp;
+      const payload = ready
+        .filter((r: any) => r.title && r.video_url)
+        .map((r: any, i: number) => ({
+          media_id: media.id,
+          season: bulkSeason,
+          episode_number: startNum + i,
+          title: r.title,
+          video_url: r.video_url,
+        }));
+      if (payload.length === 0) { toast.error("Nothing to insert"); setBulkSaving(false); return; }
+      const { error } = await supabase.from("episodes").insert(payload);
+      if (error) throw error;
+      invalidate();
+      toast.success(`${payload.length} episodes added`);
+      setBulkRows([]);
+      setMode("list");
+    } catch (e: any) {
+      toast.error(e.message || "Bulk add failed");
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-24">
       <div className="flex items-center gap-2">
         <button onClick={onBack} className="text-sm text-muted-foreground hover:text-foreground">← Back</button>
       </div>
-      <h3 className="font-display text-lg font-bold text-foreground">{media.title} · Episodes</h3>
+      <h3 className="font-display text-lg font-bold text-foreground tracking-wider">{media.title.toUpperCase()} · EPISODES</h3>
 
       {isLoading ? <div className="text-center text-muted-foreground py-4">Loading…</div> : (
         <div className="space-y-2">
@@ -374,7 +456,18 @@ const AdminEpisodes = ({ media, onBack }: { media: Media; onBack: () => void }) 
         </div>
       )}
 
-      {adding ? (
+      {mode === "list" && (
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={() => setMode("single")} className="py-3 rounded-xl glass-card border border-dashed border-glass-border text-sm text-muted-foreground flex items-center justify-center gap-2">
+            <Plus className="w-4 h-4" /> Add one
+          </button>
+          <button onClick={() => setMode("bulk")} className="py-3 rounded-xl btn-glow text-sm font-display tracking-widest flex items-center justify-center gap-2">
+            <Upload className="w-4 h-4" /> BULK ADD
+          </button>
+        </div>
+      )}
+
+      {mode === "single" && (
         <div className="space-y-3 glass-card p-3 rounded-xl">
           <div className="grid grid-cols-2 gap-2">
             <Input label="Season" type="number" value={String(form.season)} onChange={(v) => setForm({ ...form, season: Number(v) })} />
@@ -382,23 +475,101 @@ const AdminEpisodes = ({ media, onBack }: { media: Media; onBack: () => void }) 
           </div>
           <Input label="Title" value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
           <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Video source (direct URL, YouTube, or full &lt;iframe&gt; embed)</label>
-            <textarea value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} rows={3}
+            <label className="text-xs text-muted-foreground">Video source — paste or upload</label>
+            <VideoUploadField
+              value={form.video_url}
+              onChange={(v) => setForm({ ...form, video_url: v })}
+              folder={`episodes/${media.id}`}
               placeholder="https://…/episode.mp4  ·  YouTube link  ·  or <iframe …></iframe>"
-              className="w-full px-3 py-2.5 rounded-xl bg-card/60 border border-glass-border text-foreground text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none" />
+              rows={2}
+            />
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setAdding(false)} className="flex-1 py-2.5 rounded-xl glass-card text-sm">Cancel</button>
+            <button onClick={() => setMode("list")} className="flex-1 py-2.5 rounded-xl glass-card text-sm">Cancel</button>
             <button onClick={save} className="flex-1 py-2.5 rounded-xl btn-glow text-primary-foreground text-sm font-bold">Save</button>
           </div>
         </div>
-      ) : (
-        <button onClick={() => setAdding(true)} className="w-full py-3 rounded-xl glass-card border border-dashed border-glass-border text-sm text-muted-foreground flex items-center justify-center gap-2">
-          <Plus className="w-4 h-4" /> Add episode
-        </button>
+      )}
+
+      {mode === "bulk" && (
+        <div className="space-y-3 glass-card p-3 rounded-xl border border-glass-border">
+          <div className="flex items-center justify-between">
+            <p className="font-display text-sm tracking-widest text-foreground">BULK ADD</p>
+            <button onClick={() => { setMode("list"); setBulkRows([]); }} className="p-1 rounded hover:bg-muted">
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Input label="Season" type="number" value={String(bulkSeason)} onChange={(v) => setBulkSeason(Number(v))} />
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Episodes start at</label>
+              <div className="px-3 py-2.5 rounded-xl glass-card text-foreground text-sm font-mono">#{nextEp}</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl glass-card cursor-pointer text-xs font-display tracking-widest">
+              <Upload className="w-3.5 h-3.5" /> PICK VIDEOS
+              <input type="file" accept="video/*" multiple onChange={handleBulkFiles} className="hidden" />
+            </label>
+            <button onClick={addBulkUrlRow} className="px-3 py-2.5 rounded-xl glass-card text-xs font-display tracking-widest flex items-center justify-center gap-2">
+              <Plus className="w-3.5 h-3.5" /> ADD URL ROW
+            </button>
+          </div>
+
+          {bulkRows.length > 0 && (
+            <div className="space-y-2">
+              {bulkRows.map((row, i) => (
+                <div key={row.id} className="space-y-1.5 rounded-xl bg-background/40 border border-glass-border p-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-muted-foreground shrink-0">#{nextEp + i}</span>
+                    <input
+                      value={row.title}
+                      onChange={(e) => setBulkRows((prev) => prev.map((r) => r.id === row.id ? { ...r, title: e.target.value } : r))}
+                      placeholder="Episode title"
+                      className="flex-1 px-2 py-1.5 rounded-lg bg-card/60 border border-glass-border text-foreground text-xs"
+                    />
+                    <button onClick={() => removeBulkRow(row.id)} className="p-1.5 rounded hover:bg-destructive/10">
+                      <X className="w-3.5 h-3.5 text-destructive" />
+                    </button>
+                  </div>
+                  {!(row as any)._file && (
+                    <input
+                      value={row.video_url}
+                      onChange={(e) => setBulkRows((prev) => prev.map((r) => r.id === row.id ? { ...r, video_url: e.target.value } : r))}
+                      placeholder="Video URL"
+                      className="w-full px-2 py-1.5 rounded-lg bg-card/60 border border-glass-border text-foreground text-xs font-mono"
+                    />
+                  )}
+                  {row.status === "uploading" && (
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full bg-primary transition-all" style={{ width: `${row.progress ?? 0}%` }} />
+                    </div>
+                  )}
+                  {row.status === "done" && <p className="text-[10px] text-primary font-display tracking-widest">UPLOADED</p>}
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={runBulk}
+            disabled={bulkSaving || bulkRows.length === 0}
+            className="w-full py-3 rounded-xl btn-glow text-sm font-display tracking-widest disabled:opacity-50"
+          >
+            {bulkSaving ? "WORKING…" : `CREATE ${bulkRows.length} EPISODES`}
+          </button>
+        </div>
       )}
     </div>
   );
 };
 
+// Wrapper to feed episodes into the in-stream ads editor
+const AdsForMedia = ({ media, onBack }: { media: Media; onBack: () => void }) => {
+  const { data: episodes = [] } = useEpisodes(media.type === "series" ? media.id : undefined);
+  return <AdminMediaAds media={media} episodes={episodes} onBack={onBack} />;
+};
+
 export default AdminMedia;
+
