@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAllMedia, useEpisodes, type Media, type Episode } from "@/hooks/useMedia";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { useVideoUpload } from "@/hooks/useVideoUpload";
+// useVideoUpload is consumed by VideoUploadField internally
 import VideoUploadField from "@/components/VideoUploadField";
 import AdminMediaAds from "@/components/admin/AdminMediaAds";
 
