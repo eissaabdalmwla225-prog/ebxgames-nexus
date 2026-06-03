@@ -19,13 +19,19 @@ interface Ad {
 }
 
 const PLACEMENTS = [
-  { value: "banner",        label: "Home · Top Banner" },
-  { value: "hero",          label: "Home · Hero Overlay" },
-  { value: "between-rows",  label: "Home · Between Rows" },
-  { value: "footer",        label: "Home · Footer" },
-  { value: "watch-top",     label: "Watch Page · Above Player" },
-  { value: "watch-footer",  label: "Watch Page · Below Video" },
+  { value: "banner",         label: "Home · Top Banner" },
+  { value: "hero",           label: "Home · Hero Overlay" },
+  { value: "between-rows",   label: "Home · Between Rows" },
+  { value: "footer",         label: "Home · Footer" },
+  { value: "library-top",    label: "Library · Top" },
+  { value: "library-footer", label: "Library · Footer" },
+  { value: "watch-top",      label: "Watch · Above Player" },
+  { value: "watch-footer",   label: "Watch · Below Video" },
+  { value: "auth-top",       label: "Sign-in · Top" },
+  { value: "profile-top",    label: "Profile · Top" },
+  { value: "floating",       label: "Floating · Bottom Sticky" },
 ];
+
 
 const AdminAds = () => {
   const queryClient = useQueryClient();
