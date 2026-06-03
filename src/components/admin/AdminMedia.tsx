@@ -127,6 +127,12 @@ const AdminMedia = () => {
     return <AdminEpisodes media={episodesFor} onBack={() => setEpisodesFor(null)} />;
   }
 
+  if (adsFor) {
+    return <AdsForMedia media={adsFor} onBack={() => setAdsFor(null)} />;
+  }
+
+
+
   if (editing || creating) {
     return (
       <div className="space-y-4 pb-24">
