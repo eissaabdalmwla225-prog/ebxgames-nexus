@@ -5,6 +5,8 @@ import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
 import AdBanner from "@/components/AdBanner";
 import ReviewsSection from "@/components/ReviewsSection";
+import SuggestionsSection from "@/components/SuggestionsSection";
+import SiteFooter from "@/components/SiteFooter";
 import { useMediaItem, useEpisodes, type Episode } from "@/hooks/useMedia";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -69,6 +71,8 @@ const Watch = () => {
           <div className="aspect-video rounded-2xl glass-card flex items-center justify-center text-muted-foreground">No video yet</div>
         )}
 
+        <AdBanner placement="watch-below" />
+
         <div className="space-y-2">
           <h1 className="font-display text-2xl font-black text-foreground">{media.title}</h1>
           <p className="text-xs text-muted-foreground uppercase tracking-wider">{media.year} · {media.category} · {media.type}</p>
@@ -93,11 +97,14 @@ const Watch = () => {
           </div>
         )}
 
+        <SuggestionsSection current={media} />
+
         <ReviewsSection mediaId={media.id} />
 
         <AdBanner placement="watch-footer" />
       </div>
 
+      <SiteFooter />
       <BottomNav />
     </div>
   );

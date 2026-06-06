@@ -8,6 +8,7 @@ import MediaCard from "@/components/MediaCard";
 import BottomNav from "@/components/BottomNav";
 import AdBanner from "@/components/AdBanner";
 import FloatingAd from "@/components/FloatingAd";
+import SiteFooter from "@/components/SiteFooter";
 import { useMedia } from "@/hooks/useMedia";
 
 
@@ -105,9 +106,10 @@ const Index = () => {
         <AdBanner placement="footer" />
       </motion.div>
 
+      <SiteFooter />
+
       <BottomNav />
       <FloatingAd />
-
     </div>
   );
 };
