@@ -101,7 +101,7 @@ const SiteFooter = () => {
         </section>
       </div>
 
-      <div className="border-t border-glass-border">
+      <div className="border-t border-glass-border pb-24 md:pb-0">
         <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground font-display tracking-widest uppercase">{copyright}</p>
           <p className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.3em]">{siteName}</p>
