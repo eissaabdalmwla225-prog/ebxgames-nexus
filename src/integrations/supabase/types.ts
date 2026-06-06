@@ -34,9 +34,12 @@ export type Database = {
       }
       ads: {
         Row: {
+          ad_type: string
           created_at: string
           description: string | null
+          embed_code: string | null
           ends_at: string | null
+          html_content: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -46,11 +49,15 @@ export type Database = {
           starts_at: string | null
           title: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
+          ad_type?: string
           created_at?: string
           description?: string | null
+          embed_code?: string | null
           ends_at?: string | null
+          html_content?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -60,11 +67,15 @@ export type Database = {
           starts_at?: string | null
           title: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
+          ad_type?: string
           created_at?: string
           description?: string | null
+          embed_code?: string | null
           ends_at?: string | null
+          html_content?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -74,6 +85,7 @@ export type Database = {
           starts_at?: string | null
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
