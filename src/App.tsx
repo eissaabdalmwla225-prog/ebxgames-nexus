@@ -11,6 +11,8 @@ import NotFound from "./pages/NotFound.tsx";
 import Admin from "./pages/Admin.tsx";
 import { MoviesPage, SeriesPage } from "./pages/MediaList.tsx";
 import Watch from "./pages/Watch.tsx";
+import Live from "./pages/Live.tsx";
+import LiveWatch from "./pages/LiveWatch.tsx";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/movies" element={<MoviesPage />} />
             <Route path="/series" element={<SeriesPage />} />
             <Route path="/watch/:id" element={<Watch />} />
+            <Route path="/live" element={<Live />} />
+            <Route path="/live/:id" element={<LiveWatch />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/admin" element={<Admin />} />
