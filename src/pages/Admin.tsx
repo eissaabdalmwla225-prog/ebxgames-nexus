@@ -86,14 +86,16 @@ const Admin = () => {
       {/* Content */}
       <main className="flex-1 px-4 pt-4 pb-32 max-w-4xl w-full mx-auto">
         {tab === "library"  && <AdminMedia />}
+        {tab === "streams"  && <AdminStreams />}
         {tab === "ads"      && <AdminAds />}
+        {tab === "nav"      && <AdminNav />}
         {tab === "settings" && <AdminSettings />}
         {tab === "admins"   && <AdminAdmins />}
       </main>
 
       {/* Mobile-first sticky tab bar */}
-      <nav className="fixed bottom-0 inset-x-0 z-40 glass-panel border-t border-glass-border pb-[env(safe-area-inset-bottom)]">
-        <div className="grid grid-cols-4 max-w-4xl mx-auto">
+      <nav className="fixed bottom-0 inset-x-0 z-40 glass-panel border-t border-glass-border pb-[env(safe-area-inset-bottom)] overflow-x-auto">
+        <div className="grid grid-cols-6 min-w-[480px] max-w-4xl mx-auto">
           {tabs.map((t) => {
             const isActive = tab === t.id;
             return (
