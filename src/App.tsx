@@ -28,6 +28,8 @@ const App = () => (
             <Route path="/movies" element={<MoviesPage />} />
             <Route path="/series" element={<SeriesPage />} />
             <Route path="/watch/:id" element={<Watch />} />
+            <Route path="/live" element={<Live />} />
+            <Route path="/live/:id" element={<LiveWatch />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/admin" element={<Admin />} />
