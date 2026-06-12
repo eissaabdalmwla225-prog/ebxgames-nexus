@@ -261,6 +261,39 @@ export type Database = {
         }
         Relationships: []
       }
+      nav_items: {
+        Row: {
+          created_at: string
+          icon: string
+          id: string
+          is_active: boolean
+          label: string
+          path: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          path: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          path?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           admin_note: string | null
@@ -431,6 +464,57 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      streams: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          is_live: boolean
+          sort_order: number
+          starts_at: string | null
+          stream_type: string
+          stream_url: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_live?: boolean
+          sort_order?: number
+          starts_at?: string | null
+          stream_type?: string
+          stream_url: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_live?: boolean
+          sort_order?: number
+          starts_at?: string | null
+          stream_type?: string
+          stream_url?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
