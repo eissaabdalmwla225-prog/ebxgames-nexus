@@ -1,18 +1,22 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Film, Settings, Users, Megaphone, Shield, LogOut } from "lucide-react";
+import { ArrowLeft, Film, Settings, Users, Megaphone, Shield, LogOut, Radio, LayoutGrid } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import AdminMedia from "@/components/admin/AdminMedia";
 import AdminSettings from "@/components/admin/AdminSettings";
 import AdminAdmins from "@/components/admin/AdminAdmins";
 import AdminAds from "@/components/admin/AdminAds";
+import AdminStreams from "@/components/admin/AdminStreams";
+import AdminNav from "@/components/admin/AdminNav";
 
-type TabId = "library" | "ads" | "settings" | "admins";
+type TabId = "library" | "streams" | "ads" | "nav" | "settings" | "admins";
 
 const tabs: { id: TabId; label: string; icon: any; hint: string }[] = [
   { id: "library",  label: "Library",  icon: Film,       hint: "Movies & series" },
+  { id: "streams",  label: "Streams",  icon: Radio,      hint: "Live streams" },
   { id: "ads",      label: "Ads",      icon: Megaphone,  hint: "Promotions" },
+  { id: "nav",      label: "Nav",      icon: LayoutGrid, hint: "Bottom bar" },
   { id: "settings", label: "Settings", icon: Settings,   hint: "Site config" },
   { id: "admins",   label: "Admins",   icon: Users,      hint: "Access list" },
 ];
