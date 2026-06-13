@@ -249,6 +249,9 @@ const AdminStreams = () => {
               </div>
               <p className="text-[10px] text-muted-foreground truncate">{row.category || row.stream_type}</p>
             </div>
+            <button onClick={() => setAdsFor({ id: row.id, title: row.title })} className="p-2 rounded-lg hover:bg-muted" title="In-stream ads">
+              <Megaphone className="w-4 h-4 text-primary" />
+            </button>
             <button onClick={() => toggle(row, "is_active")} className="p-2 rounded-lg hover:bg-muted">
               {row.is_active ? <Eye className="w-4 h-4 text-primary" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
             </button>
