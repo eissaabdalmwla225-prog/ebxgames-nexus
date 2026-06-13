@@ -62,9 +62,27 @@ const useVideoAds = (mediaId?: string, episodeId?: string | null, streamId?: str
   });
 };
 
-const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId }: VideoPlayerProps) => {
+const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId, streamId }: VideoPlayerProps) => {
   const src = (url || "").trim();
-  const { data: ads = [] } = useVideoAds(mediaId, episodeId);
+  const { data: ads = [] } = useVideoAds(mediaId, episodeId, streamId);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isFs, setIsFs] = useState(false);
+
+  useEffect(() => {
+    const h = () => setIsFs(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", h);
+    return () => document.removeEventListener("fullscreenchange", h);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    const el = containerRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (el.requestFullscreen) await el.requestFullscreen();
+      else if ((el as any).webkitRequestFullscreen) (el as any).webkitRequestFullscreen();
+    } catch {}
+  };
 
   // Sort, dedupe by start time
   const sortedAds = useMemo(
