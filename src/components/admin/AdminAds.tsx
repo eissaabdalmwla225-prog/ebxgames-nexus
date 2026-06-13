@@ -279,6 +279,15 @@ const AdminAds = () => {
                 </button>
               ))}
             </div>
+            <input
+              value={form.placement}
+              onChange={(e) => setForm({ ...form, placement: e.target.value })}
+              placeholder="…or type a custom placement key (e.g. my-page-top)"
+              className="mt-2 w-full px-3 py-2 rounded-xl bg-card/60 border border-glass-border text-foreground text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Use any custom key here, then drop <code>&lt;AdBanner placement="your-key" /&gt;</code> wherever you want it to appear.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
