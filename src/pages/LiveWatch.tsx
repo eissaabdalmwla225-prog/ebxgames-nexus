@@ -3,6 +3,7 @@ import { ArrowLeft, Radio } from "lucide-react";
 import { useStream } from "@/hooks/useStreams";
 import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 
 const LiveWatch = () => {
   const { id } = useParams();
