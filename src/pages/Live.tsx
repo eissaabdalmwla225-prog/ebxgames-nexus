@@ -22,7 +22,8 @@ const Live = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 pt-4">
+      <main className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
+        <AdBanner placement="live-top" />
         {isLoading ? (
           <div className="grid place-items-center py-20">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
