@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Radio, Calendar } from "lucide-react";
 import { useStreams } from "@/hooks/useStreams";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 
 const Live = () => {
   const navigate = useNavigate();
