@@ -26,18 +26,23 @@ interface Ad {
 }
 
 const PLACEMENTS = [
-  { value: "banner",         label: "Home · Top Banner" },
-  { value: "hero",           label: "Home · Hero Overlay" },
-  { value: "between-rows",   label: "Home · Between Rows" },
-  { value: "footer",         label: "Home · Footer" },
-  { value: "library-top",    label: "Library · Top" },
-  { value: "library-footer", label: "Library · Footer" },
-  { value: "watch-top",      label: "Watch · Above Player" },
-  { value: "watch-below",    label: "Watch · Below Player" },
-  { value: "watch-footer",   label: "Watch · Bottom" },
-  { value: "auth-top",       label: "Sign-in · Top" },
-  { value: "profile-top",    label: "Profile · Top" },
-  { value: "floating",       label: "Floating · Bottom Sticky" },
+  { value: "banner",            label: "Home · Top Banner" },
+  { value: "hero",              label: "Home · Hero Overlay" },
+  { value: "between-rows",      label: "Home · Between Rows" },
+  { value: "footer",            label: "Home · Footer" },
+  { value: "library-top",       label: "Library · Top" },
+  { value: "library-footer",    label: "Library · Footer" },
+  { value: "watch-top",         label: "Watch · Above Player" },
+  { value: "watch-below",       label: "Watch · Below Player" },
+  { value: "watch-footer",      label: "Watch · Bottom" },
+  { value: "live-top",          label: "Live List · Top" },
+  { value: "live-footer",       label: "Live List · Footer" },
+  { value: "live-watch-top",    label: "Live Watch · Above Player" },
+  { value: "live-watch-below",  label: "Live Watch · Below Player" },
+  { value: "live-watch-footer", label: "Live Watch · Bottom" },
+  { value: "auth-top",          label: "Sign-in · Top" },
+  { value: "profile-top",       label: "Profile · Top" },
+  { value: "floating",          label: "Floating · Bottom Sticky" },
 ];
 
 const AD_TYPES: { value: AdType; label: string; Icon: any }[] = [
