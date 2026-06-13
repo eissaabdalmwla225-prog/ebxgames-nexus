@@ -24,6 +24,7 @@ interface VideoPlayerProps {
   autoPlay?: boolean;
   mediaId?: string;
   episodeId?: string | null;
+  streamId?: string;
 }
 
 const isEmbedHtml = (s: string) => /<\s*(iframe|script|embed|video)/i.test(s);
@@ -33,26 +34,27 @@ const isNativeStreamHost = (url: string) =>
     url,
   );
 
-const useVideoAds = (mediaId?: string, episodeId?: string | null) => {
+const useVideoAds = (mediaId?: string, episodeId?: string | null, streamId?: string) => {
   return useQuery({
-    queryKey: ["video-ads", mediaId, episodeId],
-    enabled: !!mediaId,
+    queryKey: ["video-ads", mediaId, episodeId, streamId],
+    enabled: !!(mediaId || streamId),
     queryFn: async () => {
       let q = supabase
         .from("video_ads")
         .select("*")
         .eq("is_active", true)
         .order("start_at_seconds");
-      if (episodeId) {
+      if (streamId) {
+        q = q.eq("stream_id", streamId);
+      } else if (episodeId) {
         q = q.or(`media_id.eq.${mediaId},episode_id.eq.${episodeId}`);
       } else {
         q = q.eq("media_id", mediaId!);
       }
       const { data, error } = await q;
       if (error) throw error;
-      // Episode-specific overrides when present
       const rows = (data || []) as VideoAd[];
-      return episodeId
+      return episodeId && !streamId
         ? rows.filter((r: any) => r.episode_id === episodeId || (r.media_id === mediaId && !r.episode_id))
         : rows;
     },
