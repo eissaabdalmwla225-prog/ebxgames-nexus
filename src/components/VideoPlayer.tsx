@@ -202,8 +202,22 @@ const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId, streamI
   };
 
   return (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-glass-border">
+    <div
+      ref={containerRef}
+      className={`relative w-full bg-black border border-glass-border ${isFs ? "h-screen w-screen rounded-none" : "aspect-video rounded-2xl overflow-hidden"}`}
+    >
       {renderMain()}
+
+      {!activeAd && (
+        <button
+          onClick={toggleFullscreen}
+          aria-label={isFs ? "Exit fullscreen" : "Enter fullscreen"}
+          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-background/60 backdrop-blur-md text-foreground hover:bg-background/80 transition"
+        >
+          {isFs ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+        </button>
+      )}
+
 
       {activeAd && (
         <div className="absolute inset-0 z-20 bg-black flex flex-col">
