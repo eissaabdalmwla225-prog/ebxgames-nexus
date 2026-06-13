@@ -533,6 +533,7 @@ export type Database = {
           skip_after_seconds: number
           sort_order: number
           start_at_seconds: number
+          stream_id: string | null
           title: string
           updated_at: string
           video_url: string | null
@@ -551,6 +552,7 @@ export type Database = {
           skip_after_seconds?: number
           sort_order?: number
           start_at_seconds?: number
+          stream_id?: string | null
           title?: string
           updated_at?: string
           video_url?: string | null
@@ -569,11 +571,20 @@ export type Database = {
           skip_after_seconds?: number
           sort_order?: number
           start_at_seconds?: number
+          stream_id?: string | null
           title?: string
           updated_at?: string
           video_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "video_ads_stream_id_fkey"
+            columns: ["stream_id"]
+            isOneToOne: false
+            referencedRelation: "streams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
