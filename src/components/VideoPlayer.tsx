@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import { X, SkipForward, ExternalLink } from "lucide-react";
+import { X, SkipForward, ExternalLink, Maximize, Minimize } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
