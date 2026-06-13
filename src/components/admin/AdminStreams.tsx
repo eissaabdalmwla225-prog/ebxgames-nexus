@@ -121,6 +121,10 @@ const AdminStreams = () => {
     if (url) setForm({ ...form, thumbnail_url: url });
   };
 
+  if (adsFor) {
+    return <AdminStreamAds streamId={adsFor.id} streamTitle={adsFor.title} onBack={() => setAdsFor(null)} />;
+  }
+
   return (
     <div className="space-y-6">
       <div className="glass-card p-4 rounded-2xl space-y-3">
