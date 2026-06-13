@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Save, X, Eye, EyeOff, Radio, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Save, X, Eye, EyeOff, Radio, Upload, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import AdminStreamAds from "./AdminStreamAds";
 
 interface StreamRow {
   id: string;
