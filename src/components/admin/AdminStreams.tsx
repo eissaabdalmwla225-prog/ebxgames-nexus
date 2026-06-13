@@ -46,6 +46,7 @@ const AdminStreams = () => {
   const qc = useQueryClient();
   const [form, setForm] = useState<typeof empty>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [adsFor, setAdsFor] = useState<{ id: string; title: string } | null>(null);
   const { upload, uploading } = useImageUpload();
 
   const { data: streams = [], isLoading } = useQuery({
