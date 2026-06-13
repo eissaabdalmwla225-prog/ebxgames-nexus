@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Save, X, Eye, EyeOff, Radio, Upload } from "lucide-react";
+import { Plus, Pencil, Trash2, Save, X, Eye, EyeOff, Radio, Upload, Megaphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import AdminStreamAds from "./AdminStreamAds";
 
 interface StreamRow {
   id: string;
@@ -45,6 +46,7 @@ const AdminStreams = () => {
   const qc = useQueryClient();
   const [form, setForm] = useState<typeof empty>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [adsFor, setAdsFor] = useState<{ id: string; title: string } | null>(null);
   const { upload, uploading } = useImageUpload();
 
   const { data: streams = [], isLoading } = useQuery({
@@ -118,6 +120,10 @@ const AdminStreams = () => {
     const url = await upload(f, "stream-thumbs");
     if (url) setForm({ ...form, thumbnail_url: url });
   };
+
+  if (adsFor) {
+    return <AdminStreamAds streamId={adsFor.id} streamTitle={adsFor.title} onBack={() => setAdsFor(null)} />;
+  }
 
   return (
     <div className="space-y-6">
@@ -243,6 +249,9 @@ const AdminStreams = () => {
               </div>
               <p className="text-[10px] text-muted-foreground truncate">{row.category || row.stream_type}</p>
             </div>
+            <button onClick={() => setAdsFor({ id: row.id, title: row.title })} className="p-2 rounded-lg hover:bg-muted" title="In-stream ads">
+              <Megaphone className="w-4 h-4 text-primary" />
+            </button>
             <button onClick={() => toggle(row, "is_active")} className="p-2 rounded-lg hover:bg-muted">
               {row.is_active ? <Eye className="w-4 h-4 text-primary" /> : <EyeOff className="w-4 h-4 text-muted-foreground" />}
             </button>

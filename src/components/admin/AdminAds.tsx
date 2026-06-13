@@ -26,18 +26,23 @@ interface Ad {
 }
 
 const PLACEMENTS = [
-  { value: "banner",         label: "Home · Top Banner" },
-  { value: "hero",           label: "Home · Hero Overlay" },
-  { value: "between-rows",   label: "Home · Between Rows" },
-  { value: "footer",         label: "Home · Footer" },
-  { value: "library-top",    label: "Library · Top" },
-  { value: "library-footer", label: "Library · Footer" },
-  { value: "watch-top",      label: "Watch · Above Player" },
-  { value: "watch-below",    label: "Watch · Below Player" },
-  { value: "watch-footer",   label: "Watch · Bottom" },
-  { value: "auth-top",       label: "Sign-in · Top" },
-  { value: "profile-top",    label: "Profile · Top" },
-  { value: "floating",       label: "Floating · Bottom Sticky" },
+  { value: "banner",            label: "Home · Top Banner" },
+  { value: "hero",              label: "Home · Hero Overlay" },
+  { value: "between-rows",      label: "Home · Between Rows" },
+  { value: "footer",            label: "Home · Footer" },
+  { value: "library-top",       label: "Library · Top" },
+  { value: "library-footer",    label: "Library · Footer" },
+  { value: "watch-top",         label: "Watch · Above Player" },
+  { value: "watch-below",       label: "Watch · Below Player" },
+  { value: "watch-footer",      label: "Watch · Bottom" },
+  { value: "live-top",          label: "Live List · Top" },
+  { value: "live-footer",       label: "Live List · Footer" },
+  { value: "live-watch-top",    label: "Live Watch · Above Player" },
+  { value: "live-watch-below",  label: "Live Watch · Below Player" },
+  { value: "live-watch-footer", label: "Live Watch · Bottom" },
+  { value: "auth-top",          label: "Sign-in · Top" },
+  { value: "profile-top",       label: "Profile · Top" },
+  { value: "floating",          label: "Floating · Bottom Sticky" },
 ];
 
 const AD_TYPES: { value: AdType; label: string; Icon: any }[] = [
@@ -274,6 +279,15 @@ const AdminAds = () => {
                 </button>
               ))}
             </div>
+            <input
+              value={form.placement}
+              onChange={(e) => setForm({ ...form, placement: e.target.value })}
+              placeholder="…or type a custom placement key (e.g. my-page-top)"
+              className="mt-2 w-full px-3 py-2 rounded-xl bg-card/60 border border-glass-border text-foreground text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/50"
+            />
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Use any custom key here, then drop <code>&lt;AdBanner placement="your-key" /&gt;</code> wherever you want it to appear.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

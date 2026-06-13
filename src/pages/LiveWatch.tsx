@@ -3,6 +3,7 @@ import { ArrowLeft, Radio } from "lucide-react";
 import { useStream } from "@/hooks/useStreams";
 import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 
 const LiveWatch = () => {
   const { id } = useParams();
@@ -32,7 +33,13 @@ const LiveWatch = () => {
           </div>
         ) : (
           <>
-            <VideoPlayer url={stream.stream_url} poster={stream.thumbnail_url || undefined} />
+            <AdBanner placement="live-watch-top" />
+            <VideoPlayer
+              url={stream.stream_url}
+              poster={stream.thumbnail_url || undefined}
+              streamId={stream.id}
+            />
+            <AdBanner placement="live-watch-below" />
             <div className="glass-card p-4 rounded-2xl">
               <div className="flex items-center gap-2 mb-2">
                 {stream.is_live && (
@@ -45,6 +52,7 @@ const LiveWatch = () => {
               <h2 className="font-display text-xl text-foreground">{stream.title}</h2>
               {stream.description && <p className="text-sm text-muted-foreground mt-2">{stream.description}</p>}
             </div>
+            <AdBanner placement="live-watch-footer" />
           </>
         )}
       </main>

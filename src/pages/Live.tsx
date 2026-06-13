@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Radio, Calendar } from "lucide-react";
 import { useStreams } from "@/hooks/useStreams";
 import BottomNav from "@/components/BottomNav";
+import AdBanner from "@/components/AdBanner";
 
 const Live = () => {
   const navigate = useNavigate();
@@ -21,7 +22,8 @@ const Live = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 pt-4">
+      <main className="max-w-4xl mx-auto px-4 pt-4 space-y-4">
+        <AdBanner placement="live-top" />
         {isLoading ? (
           <div className="grid place-items-center py-20">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -69,6 +71,7 @@ const Live = () => {
             ))}
           </div>
         )}
+        <AdBanner placement="live-footer" />
       </main>
 
       <BottomNav />

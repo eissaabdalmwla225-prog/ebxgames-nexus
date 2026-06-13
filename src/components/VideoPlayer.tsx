@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import { X, SkipForward, ExternalLink } from "lucide-react";
+import { X, SkipForward, ExternalLink, Maximize, Minimize } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
@@ -24,6 +24,7 @@ interface VideoPlayerProps {
   autoPlay?: boolean;
   mediaId?: string;
   episodeId?: string | null;
+  streamId?: string;
 }
 
 const isEmbedHtml = (s: string) => /<\s*(iframe|script|embed|video)/i.test(s);
@@ -33,26 +34,27 @@ const isNativeStreamHost = (url: string) =>
     url,
   );
 
-const useVideoAds = (mediaId?: string, episodeId?: string | null) => {
+const useVideoAds = (mediaId?: string, episodeId?: string | null, streamId?: string) => {
   return useQuery({
-    queryKey: ["video-ads", mediaId, episodeId],
-    enabled: !!mediaId,
+    queryKey: ["video-ads", mediaId, episodeId, streamId],
+    enabled: !!(mediaId || streamId),
     queryFn: async () => {
       let q = supabase
         .from("video_ads")
         .select("*")
         .eq("is_active", true)
         .order("start_at_seconds");
-      if (episodeId) {
+      if (streamId) {
+        q = q.eq("stream_id", streamId);
+      } else if (episodeId) {
         q = q.or(`media_id.eq.${mediaId},episode_id.eq.${episodeId}`);
       } else {
         q = q.eq("media_id", mediaId!);
       }
       const { data, error } = await q;
       if (error) throw error;
-      // Episode-specific overrides when present
       const rows = (data || []) as VideoAd[];
-      return episodeId
+      return episodeId && !streamId
         ? rows.filter((r: any) => r.episode_id === episodeId || (r.media_id === mediaId && !r.episode_id))
         : rows;
     },
@@ -60,9 +62,27 @@ const useVideoAds = (mediaId?: string, episodeId?: string | null) => {
   });
 };
 
-const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId }: VideoPlayerProps) => {
+const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId, streamId }: VideoPlayerProps) => {
   const src = (url || "").trim();
-  const { data: ads = [] } = useVideoAds(mediaId, episodeId);
+  const { data: ads = [] } = useVideoAds(mediaId, episodeId, streamId);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isFs, setIsFs] = useState(false);
+
+  useEffect(() => {
+    const h = () => setIsFs(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", h);
+    return () => document.removeEventListener("fullscreenchange", h);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    const el = containerRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else if (el.requestFullscreen) await el.requestFullscreen();
+      else if ((el as any).webkitRequestFullscreen) (el as any).webkitRequestFullscreen();
+    } catch {}
+  };
 
   // Sort, dedupe by start time
   const sortedAds = useMemo(
@@ -182,8 +202,22 @@ const VideoPlayer = ({ url, poster, autoPlay = true, mediaId, episodeId }: Video
   };
 
   return (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-glass-border">
+    <div
+      ref={containerRef}
+      className={`relative w-full bg-black border border-glass-border ${isFs ? "h-screen w-screen rounded-none" : "aspect-video rounded-2xl overflow-hidden"}`}
+    >
       {renderMain()}
+
+      {!activeAd && (
+        <button
+          onClick={toggleFullscreen}
+          aria-label={isFs ? "Exit fullscreen" : "Enter fullscreen"}
+          className="absolute top-3 right-3 z-10 p-2 rounded-full bg-background/60 backdrop-blur-md text-foreground hover:bg-background/80 transition"
+        >
+          {isFs ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+        </button>
+      )}
+
 
       {activeAd && (
         <div className="absolute inset-0 z-20 bg-black flex flex-col">
