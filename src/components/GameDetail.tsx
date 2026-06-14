@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Tag, AlertCircle, CheckCircle2, Upload, Image as ImageIcon } from "lucide-react";
 import type { Game, GamePackage } from "@/hooks/useGames";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { supabase } from "@/integrations/supabase/client";
 import OrderConfirmation from "./OrderConfirmation";
 
@@ -16,7 +16,7 @@ const PROMO_CODE = "EBX50";
 const PAYMENT_NUMBER = "01206442534";
 
 const GameDetail = ({ game, onBack }: GameDetailProps) => {
-  const { user } = useAuth();
+  
   const [selectedPkg, setSelectedPkg] = useState<GamePackage | null>(null);
   const [playerId, setPlayerId] = useState("");
   const [promoCode, setPromoCode] = useState("");
@@ -64,14 +64,14 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
 
   const handleSubmitOrder = async () => {
     if (!screenshotFile) { toast.error("Please attach a payment screenshot."); return; }
-    if (!selectedPkg || !user) return;
+    if (!selectedPkg) return;
 
     setSubmitting(true);
     const saleId = generateSaleId();
 
     // Upload screenshot
     const ext = screenshotFile.name.split(".").pop();
-    const filePath = `${user.id}/${saleId}.${ext}`;
+    const filePath = `anonymous/${saleId}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("order-screenshots")
       .upload(filePath, screenshotFile, { upsert: true });
@@ -81,7 +81,7 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
     const screenshotUrl = filePath;
 
     const { error } = await supabase.from("orders").insert({
-      user_id: user.id, sale_id: saleId, game_id: game.id,
+      user_id: null, sale_id: saleId, game_id: game.id,
       game_name: game.name, package_amount: selectedPkg.amount,
       package_currency: selectedPkg.currency, original_price: selectedPkg.price,
       final_price: finalPrice, player_id: playerId,
