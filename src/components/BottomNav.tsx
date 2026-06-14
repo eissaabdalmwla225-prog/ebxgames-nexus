@@ -1,15 +1,13 @@
 import * as Icons from "lucide-react";
-import { Home, User, Shield } from "lucide-react";
+import { Home, Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useNavItems } from "@/hooks/useNavItems";
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
   const { isAdmin } = useAdmin();
   const { data: navItems = [] } = useNavItems();
 
@@ -21,7 +19,6 @@ const BottomNav = () => {
   const tabs = [
     ...dynamicTabs,
     ...(isAdmin ? [{ id: "admin", label: "Admin", icon: Shield, path: "/admin" }] : []),
-    { id: "me", label: "Me", icon: User, path: user ? "/profile" : "/auth" },
   ];
 
   const active = (() => {
