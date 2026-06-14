@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Play, Tv, Film, Sparkles } from "lucide-react";
+import { Play, Tv, Radio, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
