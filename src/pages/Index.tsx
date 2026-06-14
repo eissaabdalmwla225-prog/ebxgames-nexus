@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, Film, Tv, Sparkles } from "lucide-react";
+import { ChevronRight, Film, Tv, Sparkles, Radio, Calendar } from "lucide-react";
 import HeroSection from "@/components/HeroSection";
 import SearchBar from "@/components/SearchBar";
 import MediaCard from "@/components/MediaCard";
@@ -10,6 +10,7 @@ import AdBanner from "@/components/AdBanner";
 import FloatingAd from "@/components/FloatingAd";
 import SiteFooter from "@/components/SiteFooter";
 import { useMedia } from "@/hooks/useMedia";
+import { useStreams } from "@/hooks/useStreams";
 
 
 const Row = ({
