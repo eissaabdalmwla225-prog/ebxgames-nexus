@@ -58,12 +58,55 @@ const Index = () => {
         <SearchBar value={search} onChange={setSearch} />
         <AdBanner placement="banner" />
 
+        {streams.length > 0 && (
+          <Row title="LIVE NOW" icon={Radio} onSeeAll={() => navigate("/live")}>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 pb-2 snap-x snap-mandatory">
+              {streams.slice(0, 10).map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => navigate(`/live/${s.id}`)}
+                  className="snap-start shrink-0 w-[70vw] sm:w-72 md:w-80 text-left glass-card rounded-2xl overflow-hidden hover:border-primary/50 transition group"
+                >
+                  <div className="relative aspect-video bg-muted">
+                    {s.thumbnail_url ? (
+                      <img src={s.thumbnail_url} alt={s.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition" />
+                    ) : (
+                      <div className="absolute inset-0 grid place-items-center">
+                        <Radio className="w-10 h-10 text-muted-foreground" />
+                      </div>
+                    )}
+                    {s.is_live && (
+                      <span className="absolute top-2 left-2 chip bg-destructive text-destructive-foreground text-[10px] flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> LIVE
+                      </span>
+                    )}
+                    {s.category && (
+                      <span className="absolute top-2 right-2 chip bg-background/70 backdrop-blur text-[10px]">{s.category}</span>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="font-display text-sm text-foreground line-clamp-2">{s.title}</p>
+                    {s.starts_at && (
+                      <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(s.starts_at).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Row>
+        )}
+
         {isLoading ? (
           <div className="text-center text-muted-foreground py-16 font-display tracking-widest">LOADING LIBRARY…</div>
         ) : filtered.length === 0 ? (
-          <div className="text-center text-muted-foreground py-16 glass-card rounded-2xl">
-            Nothing here yet. Admins can add titles from the dashboard.
-          </div>
+          streams.length === 0 ? (
+            <div className="text-center text-muted-foreground py-16 glass-card rounded-2xl">
+              Nothing here yet. Admins can add titles or live streams from the dashboard.
+            </div>
+          ) : null
         ) : (
           <>
             {movies.length > 0 && (
