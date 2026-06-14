@@ -49,7 +49,7 @@ const GameDetail = ({ game, onBack }: GameDetailProps) => {
   const handleProceedToPayment = () => {
     if (!playerId.trim()) { setPlayerIdError(true); toast.error("Please enter your Player ID."); return; }
     if (!selectedPkg) { toast.error("Please select a package."); return; }
-    if (!user) { toast.error("Please sign in first."); return; }
+    // Login removed — proceed without sign-in.
     setPlayerIdError(false);
     setShowPayment(true);
   };
