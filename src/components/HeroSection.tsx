@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { Play, Tv, Film, Sparkles } from "lucide-react";
+import { Play, Tv, Radio, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
@@ -34,7 +34,7 @@ const HeroSection = () => {
         >
           <span className="w-2 h-2 rounded-full bg-primary-glow animate-pulse" />
           <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary-glow">
-            Movies · Series · On Demand
+            Live · Movies · Series
           </span>
         </motion.div>
 
@@ -42,28 +42,32 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.05 }}
           className="font-display text-[3.5rem] leading-[0.9] sm:text-[5.5rem] md:text-[7rem] font-normal text-balance"
         >
-          <span className="block text-foreground">EVERY STORY.</span>
-          <span className="block gradient-text">EVERY SCREEN.</span>
+          <span className="block text-foreground">GO LIVE.</span>
+          <span className="block gradient-text">WATCH ANYTHING.</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.15 }}
           className="mt-4 text-base sm:text-lg text-muted-foreground max-w-lg font-medium"
         >
-          Blockbuster movies and binge-worthy series — all in one cinematic player.
+          Live streams in real time, plus blockbuster movies and binge-worthy series — no account required.
         </motion.p>
 
         <motion.div
           initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.25 }}
           className="mt-6 flex flex-wrap gap-3"
         >
-          <button onClick={() => navigate("/movies")}
+          <button onClick={() => navigate("/live")}
             className="btn-glow flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest">
-            <Play className="w-5 h-5 fill-current" /> WATCH NOW
+            <Radio className="w-5 h-5 animate-pulse" /> WATCH LIVE
+          </button>
+          <button onClick={() => navigate("/movies")}
+            className="glass-card flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest text-foreground hover:border-primary/50 transition">
+            <Play className="w-5 h-5 text-primary fill-current" /> MOVIES
           </button>
           <button onClick={() => navigate("/series")}
             className="glass-card flex items-center gap-2 px-5 py-3 rounded-full font-display text-lg tracking-widest text-foreground hover:border-primary/50 transition">
-            <Tv className="w-5 h-5 text-primary" /> BROWSE
+            <Tv className="w-5 h-5 text-primary" /> SERIES
           </button>
         </motion.div>
 
@@ -72,9 +76,9 @@ const HeroSection = () => {
           className="mt-8 grid grid-cols-3 gap-3 max-w-md"
         >
           {[
+            { icon: Radio, k: "LIVE", v: "Streams" },
             { icon: Sparkles, k: "1000+", v: "Titles" },
-            { icon: Film,  k: "HD",  v: "Movies"  },
-            { icon: Tv,    k: "4K",  v: "Series"  },
+            { icon: Tv, k: "4K", v: "Quality" },
           ].map((s) => (
             <div key={s.v} className="glass-card px-3 py-2.5 flex flex-col">
               <s.icon className="w-4 h-4 text-primary mb-1" />
