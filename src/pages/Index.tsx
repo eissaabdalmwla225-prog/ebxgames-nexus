@@ -37,6 +37,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const { data: allMedia = [], isLoading } = useMedia();
+  const { data: streams = [] } = useStreams();
 
   const filtered = useMemo(
     () => allMedia.filter((m) => m.title.toLowerCase().includes(search.toLowerCase())),
