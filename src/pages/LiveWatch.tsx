@@ -44,7 +44,7 @@ const LiveWatch = () => {
           <>
             <AdBanner placement="live-watch-top" />
             <VideoPlayer
-              url={stream.stream_url}
+              url={streamUrl || ""}
               poster={stream.thumbnail_url || undefined}
               streamId={stream.id}
             />
