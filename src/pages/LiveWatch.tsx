@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Radio } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useStream } from "@/hooks/useStreams";
+import { supabase } from "@/integrations/supabase/client";
 import VideoPlayer from "@/components/VideoPlayer";
 import BottomNav from "@/components/BottomNav";
 import AdBanner from "@/components/AdBanner";
@@ -9,6 +11,13 @@ const LiveWatch = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: stream, isLoading } = useStream(id);
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!stream?.id) { setStreamUrl(null); return; }
+    supabase.rpc("get_stream_url" as any, { _stream_id: stream.id })
+      .then(({ data }) => setStreamUrl((data as string) || null));
+  }, [stream?.id]);
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -35,7 +44,7 @@ const LiveWatch = () => {
           <>
             <AdBanner placement="live-watch-top" />
             <VideoPlayer
-              url={stream.stream_url}
+              url={streamUrl || ""}
               poster={stream.thumbnail_url || undefined}
               streamId={stream.id}
             />
