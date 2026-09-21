@@ -1,1 +1,0 @@
-GRANT EXECUTE ON FUNCTION public.is_admin(text) TO anon, authenticated;

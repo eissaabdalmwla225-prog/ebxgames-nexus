@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Film, Settings, Users, Megaphone, Shield, Radio, LayoutGrid } from "lucide-react";
+import { ArrowLeft, Film, Settings, Users, Megaphone, Shield, LogOut, Radio, LayoutGrid } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
 import AdminMedia from "@/components/admin/AdminMedia";
 import AdminSettings from "@/components/admin/AdminSettings";
 import AdminAdmins from "@/components/admin/AdminAdmins";
@@ -21,7 +23,30 @@ const tabs: { id: TabId; label: string; icon: any; hint: string }[] = [
 
 const Admin = () => {
   const navigate = useNavigate();
+  const { user, signOut, loading: authLoading } = useAuth();
+  const { isAdmin, isLoading: adminLoading } = useAdmin();
   const [tab, setTab] = useState<TabId>("library");
+
+  if (authLoading || adminLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <Shield className="w-12 h-12 text-primary" />
+        <h1 className="font-display text-4xl text-foreground tracking-wider">ACCESS DENIED</h1>
+        <p className="text-muted-foreground">You don't have admin privileges.</p>
+        <button onClick={() => navigate("/")} className="btn-glow px-6 py-3 rounded-full font-display text-sm tracking-widest">
+          BACK HOME
+        </button>
+      </div>
+    );
+  }
 
   const ActiveIcon = tabs.find((t) => t.id === tab)!.icon;
   const activeHint = tabs.find((t) => t.id === tab)!.hint;
@@ -41,9 +66,13 @@ const Admin = () => {
             </div>
             <div className="min-w-0">
               <p className="font-display text-base text-foreground leading-none tracking-wider">EBX LV · CONTROL</p>
-              <p className="text-[10px] text-muted-foreground truncate">Admin panel</p>
+              <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
             </div>
           </div>
+          <button onClick={signOut} aria-label="Sign out"
+            className="p-2 rounded-xl hover:bg-muted/60 active:bg-muted">
+            <LogOut className="w-5 h-5 text-muted-foreground" />
+          </button>
         </div>
 
         {/* Section title strip */}
@@ -53,7 +82,6 @@ const Admin = () => {
           <span className="text-[10px] text-muted-foreground uppercase tracking-widest">· {activeHint}</span>
         </div>
       </header>
-
 
       {/* Content */}
       <main className="flex-1 px-4 pt-4 pb-32 max-w-4xl w-full mx-auto">

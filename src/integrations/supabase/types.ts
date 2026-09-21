@@ -591,7 +591,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_stream_url: { Args: { _stream_id: string }; Returns: string }
       get_video_url: {
         Args: { _episode_id?: string; _media_id: string }
         Returns: string
